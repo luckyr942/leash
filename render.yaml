@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: leash
+    runtime: node
+    # "free" works (sample data re-seeds per visitor) but the SQLite file resets on every deploy/restart.
+    # For data that survives restarts, use "starter" and keep the disk below.
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    autoDeploy: true
+    disk:
+      name: leash-data
+      mountPath: /var/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "22.13.1"
+      - key: LEASH_DATA_DIR
+        value: /var/data
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: PAYPAL_ENV
+        value: sandbox
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: PAYPAL_CLIENT_ID
+        sync: false
+      - key: PAYPAL_CLIENT_SECRET
+        sync: false
+      - key: PAYPAL_WEBHOOK_ID
+        sync: false
+      - key: APP_URL
+        sync: false
