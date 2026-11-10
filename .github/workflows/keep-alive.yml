@@ -1,0 +1,19 @@
+name: Keep alive
+
+# Render's free plan sleeps after 15 minutes without traffic. This pings the health endpoint
+# every 5 minutes from GitHub's servers, so the demo stays awake even when no one is visiting.
+# Set the repository variable LEASH_URL (Settings → Secrets and variables → Actions → Variables),
+# e.g. https://leash.onrender.com. Without it, this workflow does nothing.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    if: ${{ vars.LEASH_URL != '' }}
+    steps:
+      - name: Ping /api/health
+        run: curl --fail --silent --show-error --max-time 90 --retry 2 "${{ vars.LEASH_URL }}/api/health"
