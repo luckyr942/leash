@@ -50,7 +50,7 @@ Freelancers are great at the work and terrible at the admin around getting paid.
 - **PayPal Invoicing v2**: create (with an idempotency key so retries never duplicate), send, remind (with the user-approved text), get and cancel. **PayPal Webhooks** (`INVOICING.INVOICE.PAID` / `CANCELLED`) are verified with PayPal's signature API before updating anything.
 - **Google Gemini** (free tier, `@google/genai`) with **JSON-schema structured output** for chat-to-invoice extraction (including a `missing` list) and follow-up drafts, plus **function calling** for the assistant (seven tools over invoices, inbox and follow-ups, plus PayPal Agent Toolkit tools in live mode). Prepared actions come back as confirm cards, so the agent can transact without ever acting alone. If the key is missing or rejected, Leash falls back to rule-based logic automatically.
 - **Connectors**: Telegram Bot API (polling, so it works on a laptop), email via Nodemailer (SMTP) + ImapFlow (IMAP) with app passwords, WhatsApp chat-export parser. Credentials are encrypted with AES-256-GCM. Prompts forbid inventing emails, phone numbers or prices, and treat the pasted chat as data, not instructions.
-- **Rules engine** in plain TypeScript (`lib/rules.ts`), unit-tested, so *when* to chase is deterministic and explainable.
+- **Rules engine** in plain TypeScript (`lib/domain/rules.ts`), unit-tested, so *when* to chase is deterministic and explainable.
 - **SQLite** (Node's built-in `node:sqlite`) with a private workspace per browser: signed HttpOnly sessions, same-origin checks, rate limits, strict CSP.
 - **Multi-currency** totals with daily ECB exchange rates (Frankfurter) and **QR codes** for pay links.
 - **AG Grid** for the invoices table (status filters, quick search, CSV export).

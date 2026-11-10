@@ -1,5 +1,5 @@
-import AppProvider from "@/components/AppProvider";
-import Shell from "@/components/Shell";
+import AppProvider from "@/components/layout/AppProvider";
+import Shell from "@/components/layout/Shell";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (

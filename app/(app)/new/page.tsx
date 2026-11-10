@@ -1,12 +1,12 @@
 "use client";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead } from "@/components/UI";
-import { Sparkle, Alert, Close, Plus, Check } from "@/components/Icons";
-import { money2 } from "@/lib/format";
-import type { InvoiceItem } from "@/lib/store";
-import { CURRENCIES } from "@/lib/fx";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead } from "@/components/ui/Primitives";
+import { Sparkle, Alert, Close, Plus, Check } from "@/components/ui/Icons";
+import { money2 } from "@/lib/domain/format";
+import type { InvoiceItem } from "@/lib/domain/models";
+import { CURRENCIES } from "@/lib/integrations/fx";
 
 type Form = {
   client: { name: string; email: string; phone: string; company: string };
@@ -52,6 +52,7 @@ export default function NewInvoice() {
       if (!raw) return;
       sessionStorage.removeItem("leash-import");
       const imp = JSON.parse(raw) as { text: string; inboxId: string; source: string; handle: string };
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time handoff from the Inbox via sessionStorage
       setChat(imp.text);
       setInboxId(imp.inboxId);
       extract(imp.text, imp);
@@ -130,7 +131,9 @@ export default function NewInvoice() {
             rows={11}
             value={chat}
             onChange={(e) => setChat(e.target.value)}
-            placeholder={"Paste a WhatsApp chat, email thread or DM…\n\ne.g. \"I need a website landing page. Budget is $500. Please deliver by November 10. Payment due after delivery.\""}
+            placeholder={
+              'Paste a WhatsApp chat, email thread or DM…\n\ne.g. "I need a website landing page. Budget is $500. Please deliver by November 10. Payment due after delivery."'
+            }
             aria-label="Client conversation"
           />
           <div className="examples">
@@ -142,7 +145,15 @@ export default function NewInvoice() {
             ))}
           </div>
           <div className="actions-row">
-            <button className="btn ghost" onClick={() => { setForm(blank()); setMissing([]); setBy(null); setNotes(""); }}>
+            <button
+              className="btn ghost"
+              onClick={() => {
+                setForm(blank());
+                setMissing([]);
+                setBy(null);
+                setNotes("");
+              }}
+            >
               Start blank
             </button>
             <button className="btn primary" disabled={busy === "extract" || chat.trim().length < 10} onClick={() => extract()}>
@@ -184,11 +195,22 @@ export default function NewInvoice() {
                 </label>
                 <label className={isMissing("Client email") && !f.client.email ? "need" : ""}>
                   Email
-                  <input className="input" type="email" value={f.client.email} onChange={(e) => setClient({ email: e.target.value })} placeholder="Needed to send" />
+                  <input
+                    className="input"
+                    type="email"
+                    value={f.client.email}
+                    onChange={(e) => setClient({ email: e.target.value })}
+                    placeholder="Needed to send"
+                  />
                 </label>
                 <label>
                   Phone (WhatsApp / SMS)
-                  <input className="input" value={f.client.phone} onChange={(e) => setClient({ phone: e.target.value })} placeholder="Optional, e.g. +1 555 0100" />
+                  <input
+                    className="input"
+                    value={f.client.phone}
+                    onChange={(e) => setClient({ phone: e.target.value })}
+                    placeholder="Optional, e.g. +1 555 0100"
+                  />
                 </label>
                 <label className={isMissing("Due date") && !f.dueDate ? "need" : ""}>
                   Due date
@@ -213,10 +235,33 @@ export default function NewInvoice() {
               <div className="lines">
                 {f.items.map((it, i) => (
                   <div className={`line ${isMissing("Amount") && !(Number(it.unitPrice) > 0) ? "need" : ""}`} key={i}>
-                    <input className="input" aria-label="Description" placeholder="Description" value={it.name} onChange={(e) => setItem(i, { name: e.target.value })} />
-                    <input className="input num" aria-label="Quantity" inputMode="decimal" value={it.quantity} onChange={(e) => setItem(i, { quantity: e.target.value as unknown as number })} />
-                    <input className="input num" aria-label="Rate" inputMode="decimal" value={it.unitPrice} onChange={(e) => setItem(i, { unitPrice: e.target.value as unknown as number })} />
-                    <button className="icon-btn" aria-label="Remove line" onClick={() => set({ items: f.items.filter((_, k) => k !== i) })} disabled={f.items.length === 1}>
+                    <input
+                      className="input"
+                      aria-label="Description"
+                      placeholder="Description"
+                      value={it.name}
+                      onChange={(e) => setItem(i, { name: e.target.value })}
+                    />
+                    <input
+                      className="input num"
+                      aria-label="Quantity"
+                      inputMode="decimal"
+                      value={it.quantity}
+                      onChange={(e) => setItem(i, { quantity: e.target.value as unknown as number })}
+                    />
+                    <input
+                      className="input num"
+                      aria-label="Rate"
+                      inputMode="decimal"
+                      value={it.unitPrice}
+                      onChange={(e) => setItem(i, { unitPrice: e.target.value as unknown as number })}
+                    />
+                    <button
+                      className="icon-btn"
+                      aria-label="Remove line"
+                      onClick={() => set({ items: f.items.filter((_, k) => k !== i) })}
+                      disabled={f.items.length === 1}
+                    >
                       <Close size={14} />
                     </button>
                   </div>
@@ -234,7 +279,12 @@ export default function NewInvoice() {
                 <button className="btn ghost" disabled={!!busy} onClick={() => save(false)}>
                   {busy === "save" ? "Saving…" : "Save draft"}
                 </button>
-                <button className="btn primary" disabled={!!busy || !f.client.email || !f.dueDate || total <= 0} onClick={() => save(true)} title={!f.client.email ? "Add the client's email first" : undefined}>
+                <button
+                  className="btn primary"
+                  disabled={!!busy || !f.client.email || !f.dueDate || total <= 0}
+                  onClick={() => save(true)}
+                  title={!f.client.email ? "Add the client's email first" : undefined}
+                >
                   <Check size={15} /> {busy === "approve" ? "Approving…" : "Approve & create in PayPal"}
                 </button>
               </div>

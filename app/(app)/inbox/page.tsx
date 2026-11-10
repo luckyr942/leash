@@ -2,12 +2,12 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead, Empty, Avatar } from "@/components/UI";
-import { EmptyArt } from "@/components/Art";
-import { Telegram, Mail, WhatsApp, Instagram, Refresh, Upload, Sparkle, Trash, ArrowRight, Plug } from "@/components/Icons";
-import { ago } from "@/lib/format";
-import type { InboxItem } from "@/lib/store";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead, Empty, Avatar } from "@/components/ui/Primitives";
+import { EmptyArt } from "@/components/brand/Art";
+import { Telegram, Mail, WhatsApp, Instagram, Refresh, Upload, Sparkle, Trash, ArrowRight, Plug } from "@/components/ui/Icons";
+import { ago } from "@/lib/domain/format";
+import type { InboxItem } from "@/lib/domain/models";
 
 const SRC: Record<InboxItem["source"], { label: string; Icon: typeof Mail; cls: string }> = {
   telegram: { label: "Telegram", Icon: Telegram, cls: "tg" },
@@ -122,7 +122,13 @@ export default function InboxPage() {
           </div>
           <label className="full">
             Conversation
-            <textarea className="input" rows={6} value={paste.text} onChange={(e) => setPaste({ ...paste, text: e.target.value })} placeholder="Paste the messages here…" />
+            <textarea
+              className="input"
+              rows={6}
+              value={paste.text}
+              onChange={(e) => setPaste({ ...paste, text: e.target.value })}
+              placeholder="Paste the messages here…"
+            />
           </label>
           <div className="actions-row">
             <button className="btn ghost" onClick={() => setPaste({ ...paste, show: false })}>

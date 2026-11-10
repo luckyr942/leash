@@ -1,13 +1,13 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import FollowUp from "@/components/FollowUp";
-import { Avatar, PageHead, StagePill, Empty } from "@/components/UI";
-import { EmptyArt } from "@/components/Art";
-import { ArrowRight } from "@/components/Icons";
-import { assess, STAGE_LABEL } from "@/lib/rules";
-import { money, day } from "@/lib/format";
+import { useApp } from "@/components/layout/AppProvider";
+import FollowUp from "@/components/invoice/FollowUp";
+import { Avatar, PageHead, StagePill, Empty } from "@/components/ui/Primitives";
+import { EmptyArt } from "@/components/brand/Art";
+import { ArrowRight } from "@/components/ui/Icons";
+import { assess, STAGE_LABEL } from "@/lib/domain/rules";
+import { money, day } from "@/lib/domain/format";
 
 const RULES = [
   ["Not yet due", "Wait", "wait"],
@@ -55,7 +55,8 @@ export default function FollowUps() {
                         {inv.client.company ? <span className="muted"> · {inv.client.company}</span> : null}
                       </b>
                       <span className="muted sm-text">
-                        <span className="num">{inv.number}</span> · due {day(inv.dueDate)} · {inv.reminders.length} reminder{inv.reminders.length === 1 ? "" : "s"} sent
+                        <span className="num">{inv.number}</span> · due {day(inv.dueDate)} · {inv.reminders.length} reminder
+                        {inv.reminders.length === 1 ? "" : "s"} sent
                       </span>
                     </div>
                     <div className="row-end">

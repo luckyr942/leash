@@ -1,24 +1,33 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead } from "@/components/UI";
-import { Check } from "@/components/Icons";
-import ThemeToggle from "@/components/ThemeToggle";
-import type { Profile } from "@/lib/store";
+import { useState } from "react";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead } from "@/components/ui/Primitives";
+import { Check } from "@/components/ui/Icons";
+import ThemeToggle from "@/components/ui/ThemeToggle";
+import type { Profile } from "@/lib/domain/models";
 
 export default function Settings() {
   const { state, call, toast, refresh } = useApp();
-  const [p, setP] = useState<Profile | null>(null);
+  // Unsaved edits; until the first keystroke the form shows the saved profile.
+  const [draft, setP] = useState<Profile | null>(null);
+  const p = draft ?? state?.profile ?? null;
   const [busy, setBusy] = useState<string | null>(null);
-  useEffect(() => {
-    if (state && !p) setP(state.profile);
-  }, [state, p]);
   if (!state || !p) return null;
   const c = state.config;
 
   const STATUS = [
-    { ok: c.ai, label: `Gemini AI (${c.aiModel})`, on: "Extracts invoices, drafts follow-ups and powers the assistant", off: "Rule-based demo. Set GEMINI_API_KEY (free at aistudio.google.com)" },
-    { ok: c.paypal, label: `PayPal Invoicing (${c.env})`, on: "Invoices are created, sent and reminded through PayPal", off: "Simulated. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET" },
+    {
+      ok: c.ai,
+      label: `Gemini AI (${c.aiModel})`,
+      on: "Extracts invoices, drafts follow-ups and powers the assistant",
+      off: "Rule-based demo. Set GEMINI_API_KEY (free at aistudio.google.com)",
+    },
+    {
+      ok: c.paypal,
+      label: `PayPal Invoicing (${c.env})`,
+      on: "Invoices are created, sent and reminded through PayPal",
+      off: "Simulated. Set PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET",
+    },
     { ok: c.webhooks, label: "PayPal webhooks", on: "Paid invoices update automatically", off: "Optional. Set PAYPAL_WEBHOOK_ID" },
   ];
 
@@ -73,7 +82,12 @@ export default function Settings() {
             </label>
             <label>
               Default payment terms (days)
-              <input className="input" inputMode="numeric" value={p.defaultDueDays} onChange={(e) => setP({ ...p, defaultDueDays: Number(e.target.value.replace(/\D/g, "")) || 0 })} />
+              <input
+                className="input"
+                inputMode="numeric"
+                value={p.defaultDueDays}
+                onChange={(e) => setP({ ...p, defaultDueDays: Number(e.target.value.replace(/\D/g, "")) || 0 })}
+              />
             </label>
           </div>
           <div className="actions-row">
@@ -117,10 +131,18 @@ export default function Settings() {
               Workspace <code>{state.workspace}</code> is private to this browser and removed after 30 days without use.
             </p>
             <div className="channels">
-              <button className="btn" disabled={!!busy} onClick={() => data("sample", "Sample data loaded.", "Replace everything with the sample freelancer data?")}>
+              <button
+                className="btn"
+                disabled={!!busy}
+                onClick={() => data("sample", "Sample data loaded.", "Replace everything with the sample freelancer data?")}
+              >
                 Load sample data
               </button>
-              <button className="btn ghost danger" disabled={!!busy} onClick={() => data("clear", "All invoices and activity cleared.", "Delete all invoices and activity in this workspace?")}>
+              <button
+                className="btn ghost danger"
+                disabled={!!busy}
+                onClick={() => data("clear", "All invoices and activity cleared.", "Delete all invoices and activity in this workspace?")}
+              >
                 Clear everything
               </button>
             </div>

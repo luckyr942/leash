@@ -1,5 +1,6 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import { extractInvoice } from "@/lib/extract";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { extractInvoice } from "@/lib/ai/extract";
 
 // Paste a client conversation, get invoice fields back for review. Nothing is saved or sent.
 export const POST = withSession(

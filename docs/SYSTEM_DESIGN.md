@@ -58,7 +58,7 @@ sequenceDiagram
   L-->>U: status Paid, logged
 ```
 
-## Rules engine (`lib/rules.ts`)
+## Rules engine (`lib/domain/rules.ts`)
 
 Pure function `assess(invoice, today)` → `{ action, label, reason, severity }`.
 
@@ -81,16 +81,16 @@ Indexes: invoices by workspace + date, by PayPal id (webhooks); activity by work
 
 ## Assistant: transact with confirmation
 
-The Gemini assistant (`lib/agent.ts`) uses function calling. Read tools (`get_summary`, `list_invoices`, `list_followups`, `check_inbox`) answer from the workspace; `create_invoice_draft` writes a DRAFT only. Two tools *prepare* money-moving or client-facing actions:
+The Gemini assistant (`lib/ai/agent.ts`) uses function calling. Read tools (`get_summary`, `list_invoices`, `list_followups`, `check_inbox`) answer from the workspace; `create_invoice_draft` writes a DRAFT only. Two tools *prepare* money-moving or client-facing actions:
 
 - `prepare_send_invoice` returns an action card with the steps (`approve` + `send`, or `send`).
 - `draft_reminder` picks the stage with the rules engine, drafts the text, and returns an action card for `remind` via PayPal, email or Telegram (falls back to PayPal if that channel isn't connected).
 
-The model has no tool that executes these. The card is rendered in the browser, the text is editable, and **Confirm & send** calls the same `/api/invoices/[id]` endpoint as the invoice page, so the same validation, idempotency and activity logging apply. In live mode the assistant also gets PayPal's **Agent Toolkit** read-only invoicing tools (`lib/paypalToolkit.ts`, prefixed `paypal_`), converted from the toolkit's OpenAI-format schemas to Gemini function declarations.
+The model has no tool that executes these. The card is rendered in the browser, the text is editable, and **Confirm & send** calls the same `/api/invoices/[id]` endpoint as the invoice page, so the same validation, idempotency and activity logging apply. In live mode the assistant also gets PayPal's **Agent Toolkit** read-only invoicing tools (`lib/integrations/paypal/toolkit.ts`, prefixed `paypal_`), converted from the toolkit's OpenAI-format schemas to Gemini function declarations.
 
 ## Multi-currency and QR
 
-Each invoice keeps its own currency end to end (PayPal bills in it). `/api/state` adds daily ECB rates (`lib/fx.ts`, Frankfurter, 6-hour cache, 4-second timeout, null when offline); the dashboard shows exact per-currency amounts and an approximate home-currency total. Pay-link QR codes are generated in the browser (`qrcode`), so links are never sent to a third-party QR service.
+Each invoice keeps its own currency end to end (PayPal bills in it). `/api/state` adds daily ECB rates (`lib/integrations/fx.ts`, Frankfurter, 6-hour cache, 4-second timeout, null when offline); the dashboard shows exact per-currency amounts and an approximate home-currency total. Pay-link QR codes are generated in the browser (`qrcode`), so links are never sent to a third-party QR service.
 
 ## One-tap sending
 

@@ -1,4 +1,4 @@
-import { pruneWorkspaces } from "@/lib/store";
+import { pruneWorkspaces } from "@/lib/server/db";
 
 export const dynamic = "force-dynamic";
 

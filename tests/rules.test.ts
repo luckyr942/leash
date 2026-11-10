@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { assess, daysOverdue, stageFor, type RuleInvoice } from "../lib/rules.ts";
+import { assess, daysOverdue, stageFor, type RuleInvoice } from "@/lib/domain/rules";
 
 const today = new Date("2026-11-20T12:00:00Z");
 const due = (daysAgo: number) => new Date(today.getTime() - daysAgo * 86_400_000).toISOString().slice(0, 10);

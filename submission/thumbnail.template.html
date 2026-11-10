@@ -1,24 +1,122 @@
-<!doctype html><meta charset="utf-8">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=block" rel="stylesheet">
+<!doctype html><meta charset="utf-8" /> <link rel="preconnect" href="https://fonts.googleapis.com" /><link
+  href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;700;800&display=block"
+  rel="stylesheet"
+/>
 <style>
-html,body{margin:0;width:1500px;height:1000px;overflow:hidden}
-body{font-family:"Plus Jakarta Sans",sans-serif;color:#fff;background:#0a0c11;position:relative}
-.glow{position:absolute;inset:0;background:radial-gradient(700px 420px at 18% -10%,rgba(110,193,255,.28),transparent 60%),radial-gradient(600px 400px at 100% 110%,rgba(64,110,255,.18),transparent 60%)}
-.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:56px 56px;-webkit-mask-image:radial-gradient(ellipse at 30% 30%,#000 30%,transparent 75%)}
-.l{position:absolute;left:90px;top:150px;width:720px}
-.brand{display:flex;align-items:center;gap:16px;font-weight:800;font-size:44px;letter-spacing:-.04em}
-h1{font-weight:800;font-size:88px;line-height:1.0;letter-spacing:-.05em;margin:70px 0 30px}
-h1 em{font-style:normal;color:#6EC1FF}
-p{margin:0;font-size:29px;line-height:1.45;color:rgba(255,255,255,.7);font-weight:500;max-width:640px}
-.pp{position:absolute;left:90px;bottom:120px;display:flex;align-items:center;gap:12px;font-size:23px;padding:14px 22px !important;font-weight:600;color:rgba(255,255,255,.8);padding:10px 16px;border:1px solid rgba(255,255,255,.14);border-radius:999px;background:rgba(255,255,255,.04)}
-.shot{position:absolute;left:860px;top:170px;width:980px;border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -20px rgba(0,0,0,.7),0 0 0 1px rgba(255,255,255,.12);transform:perspective(1600px) rotateY(-14deg) rotateX(4deg);transform-origin:left center}
-.shot img{display:block;width:100%}
+  html,
+  body {
+    margin: 0;
+    width: 1500px;
+    height: 1000px;
+    overflow: hidden;
+  }
+  body {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    color: #fff;
+    background: #0a0c11;
+    position: relative;
+  }
+  .glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(700px 420px at 18% -10%, rgba(110, 193, 255, 0.28), transparent 60%),
+      radial-gradient(600px 400px at 100% 110%, rgba(64, 110, 255, 0.18), transparent 60%);
+  }
+  .grid {
+    position: absolute;
+    inset: 0;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse at 30% 30%, #000 30%, transparent 75%);
+  }
+  .l {
+    position: absolute;
+    left: 90px;
+    top: 150px;
+    width: 720px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-weight: 800;
+    font-size: 44px;
+    letter-spacing: -0.04em;
+  }
+  h1 {
+    font-weight: 800;
+    font-size: 88px;
+    line-height: 1;
+    letter-spacing: -0.05em;
+    margin: 70px 0 30px;
+  }
+  h1 em {
+    font-style: normal;
+    color: #6ec1ff;
+  }
+  p {
+    margin: 0;
+    font-size: 29px;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 500;
+    max-width: 640px;
+  }
+  .pp {
+    position: absolute;
+    left: 90px;
+    bottom: 120px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 23px;
+    padding: 14px 22px !important;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.8);
+    padding: 10px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .shot {
+    position: absolute;
+    left: 860px;
+    top: 170px;
+    width: 980px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow:
+      0 40px 90px -20px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(255, 255, 255, 0.12);
+    transform: perspective(1600px) rotateY(-14deg) rotateX(4deg);
+    transform-origin: left center;
+  }
+  .shot img {
+    display: block;
+    width: 100%;
+  }
 </style>
-<div class="glow"></div><div class="grid"></div>
+<div class="glow"></div>
+<div class="grid"></div>
 <div class="l">
- <div class="brand"><svg width="66" height="66" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#6EC1FF"/><circle cx="24" cy="15.5" r="6" fill="none" stroke="#111827" stroke-width="5.5"/><path d="M24 21.5V35.5a9.5 9.5 0 0 0 9.5 9.5H36" fill="none" stroke="#111827" stroke-width="5.5" stroke-linecap="round"/><circle cx="44.5" cy="45" r="7.5" fill="#111827"/></svg>Leash</div>
- <h1>Get paid without the <em>awkward</em> follow-ups.</h1>
- <p>Turn client chats into PayPal invoices. Leash knows when to nudge and writes the reminder. You tap send.</p>
+  <div class="brand">
+    <svg width="66" height="66" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="16" fill="#6EC1FF" />
+      <circle cx="24" cy="15.5" r="6" fill="none" stroke="#111827" stroke-width="5.5" />
+      <path d="M24 21.5V35.5a9.5 9.5 0 0 0 9.5 9.5H36" fill="none" stroke="#111827" stroke-width="5.5" stroke-linecap="round" />
+      <circle cx="44.5" cy="45" r="7.5" fill="#111827" /></svg
+    >Leash
+  </div>
+  <h1>Get paid without the <em>awkward</em> follow-ups.</h1>
+  <p>Turn client chats into PayPal invoices. Leash knows when to nudge and writes the reminder. You tap send.</p>
 </div>
-<div class="pp"><svg width="24" height="24" viewBox="0 0 24 24"><path fill="#fff" d="M9.2 21H5.6a.5.5 0 0 1-.5-.6L7.9 3.5c.1-.3.3-.5.6-.5h6.2c3.1 0 5.2 1.9 4.6 5-.7 3.6-3.3 5.3-6.6 5.3h-2l-.9 6.1a.7.7 0 0 1-.6.6Z"/></svg>Invoices &amp; payments by PayPal</div>
-<div class="shot"><img src="2-overview.png"></div>
+<div class="pp">
+  <svg width="24" height="24" viewBox="0 0 24 24">
+    <path
+      fill="#fff"
+      d="M9.2 21H5.6a.5.5 0 0 1-.5-.6L7.9 3.5c.1-.3.3-.5.6-.5h6.2c3.1 0 5.2 1.9 4.6 5-.7 3.6-3.3 5.3-6.6 5.3h-2l-.9 6.1a.7.7 0 0 1-.6.6Z"
+    /></svg
+  >Invoices &amp; payments by PayPal
+</div>
+<div class="shot"><img src="2-overview.png" /></div>

@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
-import { withSession, body, HttpError } from "@/lib/session";
-import { parseWhatsAppExport } from "@/lib/connectors/whatsapp";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { parseWhatsAppExport } from "@/lib/integrations/connectors/whatsapp";
 
 export const dynamic = "force-dynamic";
 

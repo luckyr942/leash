@@ -1,11 +1,15 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import type { Profile } from "@/lib/store";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import type { Profile } from "@/lib/domain/models";
 
 // Your business profile: used to sign messages and on invoices.
 export const POST = withSession(
   async (req, s) => {
     const b = await body<Partial<Profile>>(req);
-    const s2 = (v: unknown, max: number) => String(v ?? "").trim().slice(0, max);
+    const s2 = (v: unknown, max: number) =>
+      String(v ?? "")
+        .trim()
+        .slice(0, max);
     const email = s2(b.email, 200);
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new HttpError(400, "That email doesn't look right.");
     const currency = s2(b.currency, 3).toUpperCase() || "USD";

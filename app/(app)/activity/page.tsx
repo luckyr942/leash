@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead, Empty } from "@/components/UI";
-import { EmptyArt } from "@/components/Art";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead, Empty } from "@/components/ui/Primitives";
+import { EmptyArt } from "@/components/brand/Art";
 
 const FILTERS = [
   ["all", "Everything"],

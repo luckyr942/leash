@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { demoExtract } from "../lib/extractDemo.ts";
+import { demoExtract } from "@/lib/ai/extract-fallback";
 
 const today = new Date("2026-11-05T12:00:00Z");
 
@@ -33,7 +33,7 @@ test("net terms, k amounts, other currencies, past dates roll to next year", () 
   assert.equal(e.dueDate, "2027-02-02");
 });
 
-test("introductions like \"it's Jess from Bloom Cafe\"", () => {
+test('introductions like "it\'s Jess from Bloom Cafe"', () => {
   const e = demoExtract("Hi, it's Jess from Bloom Cafe (jess@bloom.example). Can you design our menu? $350, due Dec 1.", today);
   assert.equal(e.clientName, "Jess");
   assert.equal(e.clientCompany, "Bloom Cafe");

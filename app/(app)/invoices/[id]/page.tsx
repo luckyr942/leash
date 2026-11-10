@@ -2,13 +2,13 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import FollowUp from "@/components/FollowUp";
-import InvoiceDoc from "@/components/InvoiceDoc";
-import PayQR from "@/components/PayQR";
-import { StatusPill, Avatar } from "@/components/UI";
-import { ArrowLeft, Check, Printer, Mail, Phone, WhatsApp, Copy, Link as LinkIcon, Close } from "@/components/Icons";
-import { displayStatus, money2, ago, day, channelLink } from "@/lib/format";
+import { useApp } from "@/components/layout/AppProvider";
+import FollowUp from "@/components/invoice/FollowUp";
+import InvoiceDoc from "@/components/invoice/InvoiceDoc";
+import PayQR from "@/components/invoice/PayQR";
+import { StatusPill, Avatar } from "@/components/ui/Primitives";
+import { ArrowLeft, Check, Printer, Mail, Phone, WhatsApp, Copy, Link as LinkIcon, Close } from "@/components/ui/Icons";
+import { displayStatus, money2, ago, day, channelLink } from "@/lib/domain/format";
 
 export default function InvoicePage() {
   const { id } = useParams<{ id: string }>();
@@ -75,7 +75,11 @@ export default function InvoicePage() {
         </div>
         <div className="head-actions">
           {inv.status === "DRAFT" && (
-            <button className="btn primary" disabled={!!busy || !inv.client.email} onClick={() => act("approve", `Approved. ${inv.number} was created in PayPal${live ? "" : " (simulated)"}.`)}>
+            <button
+              className="btn primary"
+              disabled={!!busy || !inv.client.email}
+              onClick={() => act("approve", `Approved. ${inv.number} was created in PayPal${live ? "" : " (simulated)"}.`)}
+            >
               <Check size={15} /> {busy === "approve" ? "Approving…" : "Approve & create in PayPal"}
             </button>
           )}
@@ -86,13 +90,21 @@ export default function InvoicePage() {
                   Refresh status
                 </button>
               )}
-              <button className="btn ghost" disabled={!!busy} onClick={() => act("mark_paid", "Marked as paid.", "Mark this invoice as paid? Use this when the client paid outside PayPal.")}>
+              <button
+                className="btn ghost"
+                disabled={!!busy}
+                onClick={() => act("mark_paid", "Marked as paid.", "Mark this invoice as paid? Use this when the client paid outside PayPal.")}
+              >
                 <Check size={15} /> Mark paid
               </button>
             </>
           )}
           {(inv.status === "DRAFT" || inv.status === "APPROVED" || inv.status === "SENT") && (
-            <button className="btn ghost danger" disabled={!!busy} onClick={() => act("cancel", "Invoice cancelled.", `Cancel ${inv.number}?${inv.status === "SENT" ? " PayPal will notify the client." : ""}`)}>
+            <button
+              className="btn ghost danger"
+              disabled={!!busy}
+              onClick={() => act("cancel", "Invoice cancelled.", `Cancel ${inv.number}?${inv.status === "SENT" ? " PayPal will notify the client." : ""}`)}
+            >
               <Close size={14} /> Cancel
             </button>
           )}
@@ -117,7 +129,14 @@ export default function InvoicePage() {
               <div className="fu">
                 <p className="fu-why">Add the client&apos;s email so PayPal can deliver the invoice.</p>
                 <div className="inline-form">
-                  <input className="input" type="email" placeholder="client@company.com" value={email} onChange={(e) => setEmail(e.target.value)} aria-label="Client email" />
+                  <input
+                    className="input"
+                    type="email"
+                    placeholder="client@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    aria-label="Client email"
+                  />
                   <button className="btn" disabled={!email || busy === "email"} onClick={addEmail}>
                     Save
                   </button>

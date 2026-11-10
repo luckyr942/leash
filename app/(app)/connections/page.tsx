@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead } from "@/components/UI";
-import { Telegram, Mail, WhatsApp, Instagram, Check, Refresh, Sparkle, PayPalMark, Upload, ArrowRight } from "@/components/Icons";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead } from "@/components/ui/Primitives";
+import { Telegram, Mail, WhatsApp, Instagram, Check, Refresh, Sparkle, PayPalMark, Upload, ArrowRight } from "@/components/ui/Icons";
 
 const PROVIDERS = [
   ["gmail", "Gmail", "https://myaccount.google.com/apppasswords"],
@@ -12,6 +12,9 @@ const PROVIDERS = [
   ["yahoo", "Yahoo Mail", "https://login.yahoo.com/account/security"],
   ["custom", "Other (IMAP/SMTP)", ""],
 ] as const;
+
+/** What /api/connectors returns for connect / sync actions. */
+type ConnectorResult = { count?: number; username?: string; user?: string };
 
 export default function Connections() {
   const { state, call, toast, refresh } = useApp();
@@ -22,7 +25,7 @@ export default function Connections() {
   const { connectors: c, config } = state;
   const provider = PROVIDERS.find((p) => p[0] === em.provider)!;
 
-  async function run(key: string, payload: object, ok: (b: any) => string) {
+  async function run(key: string, payload: object, ok: (b: ConnectorResult) => string) {
     setBusy(key);
     const r = await call("/api/connectors", payload);
     setBusy(null);
@@ -35,7 +38,10 @@ export default function Connections() {
 
   return (
     <>
-      <PageHead title="Connections" sub="Bring client conversations into Leash and send reminders from your own accounts. Credentials are encrypted and never shown again." />
+      <PageHead
+        title="Connections"
+        sub="Bring client conversations into Leash and send reminders from your own accounts. Credentials are encrypted and never shown again."
+      />
 
       <div className="conn-grid">
         {/* Telegram */}
@@ -60,13 +66,21 @@ export default function Connections() {
                 with clients, or forward a client&apos;s messages to it.
               </p>
               <div className="channels">
-                <button className="btn primary sm" disabled={!!busy} onClick={() => run("tg-sync", { kind: "telegram", action: "sync" }, (b) => `${b.count} new Telegram message${b.count === 1 ? "" : "s"}.`)}>
+                <button
+                  className="btn primary sm"
+                  disabled={!!busy}
+                  onClick={() => run("tg-sync", { kind: "telegram", action: "sync" }, (b) => `${b.count} new Telegram message${b.count === 1 ? "" : "s"}.`)}
+                >
                   <Refresh size={14} /> {busy === "tg-sync" ? "Checking…" : "Check messages"}
                 </button>
                 <Link className="btn sm" href="/inbox">
                   Open inbox
                 </Link>
-                <button className="btn ghost sm danger" disabled={!!busy} onClick={() => run("tg-off", { kind: "telegram", action: "disconnect" }, () => "Telegram disconnected.")}>
+                <button
+                  className="btn ghost sm danger"
+                  disabled={!!busy}
+                  onClick={() => run("tg-off", { kind: "telegram", action: "disconnect" }, () => "Telegram disconnected.")}
+                >
                   Disconnect
                 </button>
               </div>
@@ -85,7 +99,14 @@ export default function Connections() {
                 <li>Paste the token here.</li>
               </ol>
               <div className="inline-form">
-                <input className="input" placeholder="123456789:AA…" value={token} onChange={(e) => setToken(e.target.value)} aria-label="Telegram bot token" autoComplete="off" />
+                <input
+                  className="input"
+                  placeholder="123456789:AA…"
+                  value={token}
+                  onChange={(e) => setToken(e.target.value)}
+                  aria-label="Telegram bot token"
+                  autoComplete="off"
+                />
                 <button
                   className="btn primary"
                   disabled={!token.trim() || !!busy}
@@ -108,7 +129,9 @@ export default function Connections() {
             </span>
             <div>
               <h2>Email</h2>
-              <p className="muted sm-text">Send reminders from your own address and pull recent emails (including Upwork, Fiverr and Instagram notifications) into the Inbox.</p>
+              <p className="muted sm-text">
+                Send reminders from your own address and pull recent emails (including Upwork, Fiverr and Instagram notifications) into the Inbox.
+              </p>
             </div>
             {c.email.connected && <span className="pill s-paid">Connected</span>}
           </div>
@@ -118,13 +141,25 @@ export default function Connections() {
                 Sending and reading as <b>{c.email.user}</b>.
               </p>
               <div className="channels">
-                <button className="btn primary sm" disabled={!!busy} onClick={() => run("em-sync", { kind: "email", action: "sync" }, (b) => `Checked ${b.count} recent email${b.count === 1 ? "" : "s"}.`)}>
+                <button
+                  className="btn primary sm"
+                  disabled={!!busy}
+                  onClick={() => run("em-sync", { kind: "email", action: "sync" }, (b) => `Checked ${b.count} recent email${b.count === 1 ? "" : "s"}.`)}
+                >
                   <Refresh size={14} /> {busy === "em-sync" ? "Checking…" : "Check inbox"}
                 </button>
-                <button className="btn sm" disabled={!!busy} onClick={() => run("em-test", { kind: "email", action: "test" }, () => `Test email sent to ${c.email.user}.`)}>
+                <button
+                  className="btn sm"
+                  disabled={!!busy}
+                  onClick={() => run("em-test", { kind: "email", action: "test" }, () => `Test email sent to ${c.email.user}.`)}
+                >
                   Send test email
                 </button>
-                <button className="btn ghost sm danger" disabled={!!busy} onClick={() => run("em-off", { kind: "email", action: "disconnect" }, () => "Email disconnected.")}>
+                <button
+                  className="btn ghost sm danger"
+                  disabled={!!busy}
+                  onClick={() => run("em-off", { kind: "email", action: "disconnect" }, () => "Email disconnected.")}
+                >
                   Disconnect
                 </button>
               </div>
@@ -144,21 +179,45 @@ export default function Connections() {
                 </label>
                 <label>
                   Your name (shown as sender)
-                  <input className="input" value={em.fromName} placeholder={state.profile.yourName} onChange={(e) => setEm({ ...em, fromName: e.target.value })} />
+                  <input
+                    className="input"
+                    value={em.fromName}
+                    placeholder={state.profile.yourName}
+                    onChange={(e) => setEm({ ...em, fromName: e.target.value })}
+                  />
                 </label>
                 <label>
                   Email address
-                  <input className="input" type="email" autoComplete="off" value={em.user} onChange={(e) => setEm({ ...em, user: e.target.value })} placeholder="you@gmail.com" />
+                  <input
+                    className="input"
+                    type="email"
+                    autoComplete="off"
+                    value={em.user}
+                    onChange={(e) => setEm({ ...em, user: e.target.value })}
+                    placeholder="you@gmail.com"
+                  />
                 </label>
                 <label>
                   App password
-                  <input className="input" type="password" autoComplete="new-password" value={em.pass} onChange={(e) => setEm({ ...em, pass: e.target.value })} placeholder="16-character app password" />
+                  <input
+                    className="input"
+                    type="password"
+                    autoComplete="new-password"
+                    value={em.pass}
+                    onChange={(e) => setEm({ ...em, pass: e.target.value })}
+                    placeholder="16-character app password"
+                  />
                 </label>
                 {em.provider === "custom" && (
                   <>
                     <label>
                       SMTP server
-                      <input className="input" value={em.smtpHost} onChange={(e) => setEm({ ...em, smtpHost: e.target.value })} placeholder="smtp.example.com" />
+                      <input
+                        className="input"
+                        value={em.smtpHost}
+                        onChange={(e) => setEm({ ...em, smtpHost: e.target.value })}
+                        placeholder="smtp.example.com"
+                      />
                     </label>
                     <label>
                       SMTP port
@@ -166,7 +225,12 @@ export default function Connections() {
                     </label>
                     <label>
                       IMAP server
-                      <input className="input" value={em.imapHost} onChange={(e) => setEm({ ...em, imapHost: e.target.value })} placeholder="imap.example.com" />
+                      <input
+                        className="input"
+                        value={em.imapHost}
+                        onChange={(e) => setEm({ ...em, imapHost: e.target.value })}
+                        placeholder="imap.example.com"
+                      />
                     </label>
                     <label>
                       IMAP port
@@ -189,7 +253,13 @@ export default function Connections() {
                   className="btn primary"
                   disabled={!em.user || !em.pass || !!busy}
                   onClick={async () => {
-                    if (await run("em", { kind: "email", action: "connect", ...em, fromName: em.fromName || state.profile.yourName }, (b) => `Connected ${b.user}.`))
+                    if (
+                      await run(
+                        "em",
+                        { kind: "email", action: "connect", ...em, fromName: em.fromName || state.profile.yourName },
+                        (b) => `Connected ${b.user}.`,
+                      )
+                    )
                       setEm({ ...em, pass: "" });
                   }}
                 >
@@ -213,7 +283,9 @@ export default function Connections() {
             <span className="pill s-paid">Ready</span>
           </div>
           <ol className="steps-list">
-            <li>In WhatsApp, open the client chat → ⋮ (or the name) → <b>Export chat</b> → <b>Without media</b>.</li>
+            <li>
+              In WhatsApp, open the client chat → ⋮ (or the name) → <b>Export chat</b> → <b>Without media</b>.
+            </li>
             <li>Save the .txt and upload it in the Inbox.</li>
           </ol>
           <Link className="btn sm" href="/inbox">
@@ -258,7 +330,9 @@ export default function Connections() {
               <div>
                 <b>PayPal Invoicing ({config.env})</b>
                 <span>
-                  {config.paypal ? "Live: invoices are created, sent and reminded through PayPal." : "Simulated. Add PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET from developer.paypal.com (sandbox app)."}
+                  {config.paypal
+                    ? "Live: invoices are created, sent and reminded through PayPal."
+                    : "Simulated. Add PAYPAL_CLIENT_ID and PAYPAL_CLIENT_SECRET from developer.paypal.com (sandbox app)."}
                 </span>
               </div>
             </li>
@@ -266,14 +340,20 @@ export default function Connections() {
               <span className={`tick ${config.ai ? "ok" : ""}`}>{config.ai ? <Check size={12} /> : <Sparkle size={13} />}</span>
               <div>
                 <b>Gemini AI ({config.aiModel})</b>
-                <span>{config.ai ? "Live: extraction, drafts and the assistant use Gemini." : config.aiProblem ?? "Rule-based fallback. Add a free GEMINI_API_KEY from aistudio.google.com/apikey."}</span>
+                <span>
+                  {config.ai
+                    ? "Live: extraction, drafts and the assistant use Gemini."
+                    : (config.aiProblem ?? "Rule-based fallback. Add a free GEMINI_API_KEY from aistudio.google.com/apikey.")}
+                </span>
               </div>
             </li>
             <li>
               <span className={`tick ${config.webhooks ? "ok" : ""}`}>{config.webhooks ? <Check size={12} /> : "–"}</span>
               <div>
                 <b>PayPal webhooks</b>
-                <span>{config.webhooks ? "Paid invoices update automatically." : "Optional on a public URL: set PAYPAL_WEBHOOK_ID. Without it, use Refresh status."}</span>
+                <span>
+                  {config.webhooks ? "Paid invoices update automatically." : "Optional on a public URL: set PAYPAL_WEBHOOK_ID. Without it, use Refresh status."}
+                </span>
               </div>
             </li>
           </ul>

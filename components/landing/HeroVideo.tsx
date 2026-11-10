@@ -11,6 +11,7 @@ export default function HeroVideo({ className = "" }: { className?: string }) {
     if (!v) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       v.pause();
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- prefers-reduced-motion is only known in the browser
       setPlaying(false);
       return;
     }
@@ -31,7 +32,17 @@ export default function HeroVideo({ className = "" }: { className?: string }) {
 
   return (
     <>
-      <video ref={ref} className={`lp-video ${className}`} muted loop playsInline preload="metadata" poster="/media/hero-poster.webp" aria-hidden="true" tabIndex={-1}>
+      <video
+        ref={ref}
+        className={`lp-video ${className}`}
+        muted
+        loop
+        playsInline
+        preload="metadata"
+        poster="/media/hero-poster.webp"
+        aria-hidden="true"
+        tabIndex={-1}
+      >
         <source src="/media/hero.webm" type="video/webm" />
         <source src="/media/hero.mp4" type="video/mp4" />
       </video>

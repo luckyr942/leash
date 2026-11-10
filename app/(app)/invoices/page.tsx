@@ -2,13 +2,13 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useState } from "react";
-import { useApp } from "@/components/AppProvider";
-import { PageHead } from "@/components/UI";
-import { Plus, Search, Download } from "@/components/Icons";
-import { displayStatus, money2 } from "@/lib/format";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead } from "@/components/ui/Primitives";
+import { Plus, Search, Download } from "@/components/ui/Icons";
+import { displayStatus, money2 } from "@/lib/domain/format";
 
 // AG Grid is the heaviest dependency: load it after the page has painted.
-const InvoiceGrid = dynamic(() => import("@/components/InvoiceGrid"), { ssr: false, loading: () => <div className="grid-wrap sk" /> });
+const InvoiceGrid = dynamic(() => import("@/components/invoice/InvoiceGrid"), { ssr: false, loading: () => <div className="grid-wrap sk" /> });
 
 const TABS = [
   ["ALL", "All"],
@@ -35,7 +35,20 @@ export default function Invoices() {
     };
     const head = ["Invoice", "Client", "Company", "Email", "Amount", "Currency", "Due", "Status", "Sent", "Paid", "Reminders", "PayPal id"];
     const rows = list.map((i) =>
-      [i.number, i.client.name, i.client.company, i.client.email, i.total, i.currency, i.dueDate, displayStatus(i), i.sentAt?.slice(0, 10), i.paidAt?.slice(0, 10), i.reminders.length, i.paypalInvoiceId]
+      [
+        i.number,
+        i.client.name,
+        i.client.company,
+        i.client.email,
+        i.total,
+        i.currency,
+        i.dueDate,
+        displayStatus(i),
+        i.sentAt?.slice(0, 10),
+        i.paidAt?.slice(0, 10),
+        i.reminders.length,
+        i.paypalInvoiceId,
+      ]
         .map(esc)
         .join(","),
     );

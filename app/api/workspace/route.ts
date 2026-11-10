@@ -1,6 +1,7 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import { seedSampleMonth } from "@/lib/sample";
-import { appUrlFrom } from "@/lib/url";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { seedSampleMonth } from "@/lib/server/seed";
+import { appUrlFrom } from "@/lib/server/url";
 
 // Settings actions for this visitor's workspace.
 export const POST = withSession(

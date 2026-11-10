@@ -1,8 +1,8 @@
 import { timingSafeEqual } from "node:crypto";
-import { findInvoiceById, store } from "@/lib/store";
-import { money2, day } from "@/lib/format";
+import { findInvoiceById, store } from "@/lib/server/db";
+import { money2, day } from "@/lib/domain/format";
 import PayButton from "./PayButton";
-import { LogoMark } from "@/components/Logo";
+import { LogoMark } from "@/components/brand/Logo";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Pay invoice · Leash (sandbox)", robots: { index: false } };
@@ -47,7 +47,13 @@ export default async function PayPage({ params, searchParams }: { params: Promis
             </li>
           ))}
         </ul>
-        {inv.status === "PAID" ? <div className="paid-box">Paid · thank you!</div> : inv.status === "SENT" ? <PayButton id={inv.id} token={t!} /> : <div className="paid-box muted">This invoice is {inv.status.toLowerCase()}.</div>}
+        {inv.status === "PAID" ? (
+          <div className="paid-box">Paid · thank you!</div>
+        ) : inv.status === "SENT" ? (
+          <PayButton id={inv.id} token={t!} />
+        ) : (
+          <div className="paid-box muted">This invoice is {inv.status.toLowerCase()}.</div>
+        )}
       </div>
     </main>
   );

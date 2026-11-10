@@ -1,8 +1,9 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import { invoiceAction, updateDraft, validate, type InvoiceInput } from "@/lib/invoices";
-import { appUrlFrom } from "@/lib/url";
-import type { Channel } from "@/lib/store";
-import type { Stage } from "@/lib/rules";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { invoiceAction, updateDraft, validate, type InvoiceInput } from "@/lib/services/invoices";
+import { appUrlFrom } from "@/lib/server/url";
+import type { Channel } from "@/lib/domain/models";
+import type { Stage } from "@/lib/domain/rules";
 
 type Ctx = { params: Promise<{ id: string }> };
 const ok = (id: string) => /^[a-f0-9]{8}$/.test(id);

@@ -1,6 +1,7 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import { connectTelegram, syncTelegram } from "@/lib/connectors/telegram";
-import { connectEmail, syncEmail, sendEmail, type EmailConfig } from "@/lib/connectors/email";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { connectTelegram, syncTelegram } from "@/lib/integrations/connectors/telegram";
+import { connectEmail, syncEmail, sendEmail, type EmailConfig } from "@/lib/integrations/connectors/email";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;

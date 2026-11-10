@@ -1,5 +1,5 @@
-import { withSession, body } from "@/lib/session";
-import { createDraft, validate, type InvoiceInput } from "@/lib/invoices";
+import { withSession, body } from "@/lib/server/session";
+import { createDraft, validate, type InvoiceInput } from "@/lib/services/invoices";
 
 export const dynamic = "force-dynamic";
 

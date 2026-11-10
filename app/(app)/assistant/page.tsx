@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { Check } from "@/components/Icons";
-import { useApp } from "@/components/AppProvider";
-import { PageHead, StatusPill } from "@/components/UI";
-import { Bot, Send, Sparkle, ArrowRight, Copy, Telegram, Mail, WhatsApp } from "@/components/Icons";
-import type { Card, ChatTurn } from "@/lib/agent";
-import type { DisplayStatus } from "@/lib/format";
+import { Check } from "@/components/ui/Icons";
+import { useApp } from "@/components/layout/AppProvider";
+import { PageHead, StatusPill } from "@/components/ui/Primitives";
+import { Bot, Send, Sparkle, ArrowRight, Copy, Telegram, Mail, WhatsApp } from "@/components/ui/Icons";
+import type { Card, ChatTurn } from "@/lib/ai/agent";
+import type { DisplayStatus } from "@/lib/domain/format";
 
 type Msg = ChatTurn & { cards?: Card[] };
 
@@ -29,6 +29,7 @@ export default function Assistant() {
   useEffect(() => {
     try {
       const saved = sessionStorage.getItem("leash-chat");
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- restore chat from sessionStorage after hydration
       if (saved) setMsgs(JSON.parse(saved));
     } catch {}
   }, []);
@@ -47,13 +48,16 @@ export default function Assistant() {
     setBusy(true);
     const r = await call("/api/agent", { messages: next.map(({ role, text }) => ({ role, text })) });
     setBusy(false);
-    setMsgs([...next, { role: "model", text: r.ok ? r.body.reply : r.body.error ?? "Something went wrong.", cards: r.ok ? r.body.cards : [] }]);
+    setMsgs([...next, { role: "model", text: r.ok ? r.body.reply : (r.body.error ?? "Something went wrong."), cards: r.ok ? r.body.cards : [] }]);
     if (r.ok && r.body.cards?.length) refresh();
   }
 
   return (
     <>
-      <PageHead title="Assistant" sub="Ask about your money, your clients or your inbox. It drafts invoices and prepares sends and reminders; nothing goes out until you tap Confirm.">
+      <PageHead
+        title="Assistant"
+        sub="Ask about your money, your clients or your inbox. It drafts invoices and prepares sends and reminders; nothing goes out until you tap Confirm."
+      >
         {msgs.length > 0 && (
           <button className="btn ghost" onClick={() => setMsgs([])}>
             New chat
@@ -68,7 +72,9 @@ export default function Assistant() {
                 <Bot size={24} />
               </span>
               <b>Hi, I&apos;m your Leash assistant.</b>
-              <p className="muted">{state?.config.ai ? `Powered by Gemini (${state.config.aiModel}).` : "Running in demo mode. Add a free Gemini key for full conversations."} Try:</p>
+              <p className="muted">
+                {state?.config.ai ? `Powered by Gemini (${state.config.aiModel}).` : "Running in demo mode. Add a free Gemini key for full conversations."} Try:
+              </p>
               <div className="examples center">
                 {SUGGESTIONS.map((s) => (
                   <button key={s} className="chip" onClick={() => send(s)}>
@@ -182,7 +188,12 @@ function CardView({ c }: { c: Card }) {
           <Copy size={13} /> Copy
         </button>
         {inv?.client.phone && (
-          <a className="btn sm" href={`https://wa.me/${inv.client.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(c.text)}`} target="_blank" rel="noopener noreferrer">
+          <a
+            className="btn sm"
+            href={`https://wa.me/${inv.client.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(c.text)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <WhatsApp size={13} /> WhatsApp
           </a>
         )}
@@ -227,7 +238,14 @@ function ActionCard({ c }: { c: Extract<Card, { type: "action" }> }) {
         </span>
       </div>
       {c.steps.includes("remind") && (
-        <textarea className="input draft-edit" rows={5} value={msg} onChange={(e) => setMsg(e.target.value)} disabled={phase !== "ready" && phase !== "error"} aria-label="Reminder text" />
+        <textarea
+          className="input draft-edit"
+          rows={5}
+          value={msg}
+          onChange={(e) => setMsg(e.target.value)}
+          disabled={phase !== "ready" && phase !== "error"}
+          aria-label="Reminder text"
+        />
       )}
       {c.steps.length > 1 && <p className="muted sm-text">Approves the draft (creates it in PayPal), then sends it with a pay link.</p>}
       {err && <p className="err-text">{err}</p>}
@@ -256,7 +274,12 @@ function ActionCard({ c }: { c: Extract<Card, { type: "action" }> }) {
               </button>
             )}
             {msg && c.phone && (
-              <a className="btn sm" href={`https://wa.me/${c.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(msg)}`} target="_blank" rel="noopener noreferrer">
+              <a
+                className="btn sm"
+                href={`https://wa.me/${c.phone.replace(/[^\d]/g, "")}?text=${encodeURIComponent(msg)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <WhatsApp size={13} /> WhatsApp
               </a>
             )}

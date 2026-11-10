@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { PayPalMark } from "@/components/Icons";
+import { PayPalMark } from "@/components/ui/Icons";
 
 export default function PayButton({ id, token }: { id: string; token: string }) {
   const [state, setState] = useState<"idle" | "busy" | "paid" | "error">("idle");

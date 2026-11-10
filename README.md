@@ -13,7 +13,8 @@ AI turns client conversations into PayPal invoices, then drafts every follow-up 
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-1A6FD1)
 ![PayPal Invoicing v2](https://img.shields.io/badge/PayPal-Invoicing%20v2%20%2B%20Agent%20Toolkit-0B1A4A)
 ![Gemini](https://img.shields.io/badge/AI-Google%20Gemini-6EC1FF)
-![Tests](https://img.shields.io/badge/tests-16%20passing-2E7D32)
+[![CI](https://github.com/luckyr942/leash/actions/workflows/ci.yml/badge.svg)](https://github.com/luckyr942/leash/actions/workflows/ci.yml)
+![Tests](https://img.shields.io/badge/tests-39%20passing-2E7D32)
 
 [Screenshots](#screenshots) · [Quick start](#quick-start) · [How it works](#how-it-works) · [Architecture](#architecture) · [PayPal](#paypal-integration) · [AI](#ai-integration) · [Design decisions](#design-decisions) · [Docs](#documentation)
 
@@ -136,7 +137,7 @@ sequenceDiagram
 | 22–30 days overdue | Final notice |
 | 30+ days overdue | Suggest a direct conversation (no more emails) |
 
-One reminder per stage, at least 3 days apart. The rules are pure functions in [`lib/rules.ts`](lib/rules.ts) with unit tests. **The AI never decides whether to chase.**
+One reminder per stage, at least 3 days apart. The rules are pure functions in [`lib/domain/rules.ts`](lib/domain/rules.ts) with unit tests. **The AI never decides whether to chase.**
 
 ## Architecture
 
@@ -147,13 +148,13 @@ flowchart LR
     end
     subgraph Server["Next.js server (Node 22)"]
         API["Route handlers<br/>/api/*"]
-        INV["lib/invoices.ts<br/>approve · send · remind · sync"]
-        RULES["lib/rules.ts<br/>collections rules (pure)"]
-        AI["lib/ai.ts · extract · followup · agent<br/>model fallback, rule fallback"]
-        PP["lib/paypal.ts<br/>Invoicing v2 + webhooks"]
-        TK["lib/paypalToolkit.ts<br/>PayPal Agent Toolkit"]
+        INV["lib/services/invoices.ts<br/>approve · send · remind · sync"]
+        RULES["lib/domain/rules.ts<br/>collections rules (pure)"]
+        AI["lib/ai/<br/>client · extract · followup · agent"]
+        PP["lib/integrations/paypal/client.ts<br/>Invoicing v2 + webhooks"]
+        TK["lib/integrations/paypal/toolkit.ts<br/>PayPal Agent Toolkit"]
         DB[("SQLite<br/>node:sqlite")]
-        CON["connectors/<br/>Telegram · IMAP/SMTP · WhatsApp"]
+        CON["lib/integrations/connectors/<br/>Telegram · IMAP/SMTP · WhatsApp"]
     end
     UI --> API
     API --> INV & AI & CON
@@ -165,18 +166,18 @@ flowchart LR
     PAYPAL -->|webhook| API
 ```
 
-Architecture, data model and flows in depth: [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md).
+Architecture, data model and flows in depth: [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md). Folder layout and layering rules: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## PayPal integration
 
 | Capability | Where | Used for |
 |---|---|---|
-| **Invoicing v2: create** | [`lib/paypal.ts`](lib/paypal.ts), `approve` | Creates the invoice only after the user approves it |
+| **Invoicing v2: create** | [`lib/integrations/paypal/client.ts`](lib/integrations/paypal/client.ts), `approve` | Creates the invoice only after the user approves it |
 | **Invoicing v2: send** | `send` | PayPal emails the client a secure pay link |
 | **Invoicing v2: remind** | `remind` (channel `paypal`) | Sends the user's approved reminder text through PayPal |
 | **Invoicing v2: get / cancel** | `sync`, `cancel` | Status refresh and cancellation |
 | **Webhooks** | [`/api/paypal/webhook`](app/api/paypal/webhook) | `INVOICING.INVOICE.PAID` / `CANCELLED` / `REFUNDED`, verified with PayPal's signature API |
-| **PayPal Agent Toolkit** | [`lib/paypalToolkit.ts`](lib/paypalToolkit.ts) | Gives the assistant PayPal's official invoicing tools (`list_invoices`, `get_invoice`, `search_invoicing`, `generate_invoice_qr_code`) as Gemini functions |
+| **PayPal Agent Toolkit** | [`lib/integrations/paypal/toolkit.ts`](lib/integrations/paypal/toolkit.ts) | Gives the assistant PayPal's official invoicing tools (`list_invoices`, `get_invoice`, `search_invoicing`, `generate_invoice_qr_code`) as Gemini functions |
 
 Production details that matter:
 - **Idempotency.** Every write carries a `PayPal-Request-Id`, so retries never create duplicates.
@@ -193,9 +194,9 @@ Google **Gemini** through `@google/genai`. Default model `gemini-3.5-flash`, wit
 
 | Feature | File | Technique |
 |---|---|---|
-| **Chat → invoice** | [`lib/extract.ts`](lib/extract.ts) | Structured output with a JSON schema; returns typed fields plus a `missing` list. Prompted never to invent emails, phones or prices, and to treat the conversation as data, not instructions. |
-| **Follow-up drafting** | [`lib/followup.ts`](lib/followup.ts) | Given the rule's stage and reason, writes the subject, an email body, a short chat version and a one-line "why". |
-| **Assistant** | [`lib/agent.ts`](lib/agent.ts) | Function calling with Leash tools (`get_summary`, `list_invoices`, `list_followups`, `check_inbox`, `create_invoice_draft`, `draft_reminder`, `prepare_send_invoice`) plus the PayPal Agent Toolkit. Sends come back as **confirm cards** with editable text; the model never calls a send endpoint itself. |
+| **Chat → invoice** | [`lib/ai/extract.ts`](lib/ai/extract.ts) | Structured output with a JSON schema; returns typed fields plus a `missing` list. Prompted never to invent emails, phones or prices, and to treat the conversation as data, not instructions. |
+| **Follow-up drafting** | [`lib/ai/followup.ts`](lib/ai/followup.ts) | Given the rule's stage and reason, writes the subject, an email body, a short chat version and a one-line "why". |
+| **Assistant** | [`lib/ai/agent.ts`](lib/ai/agent.ts) | Function calling with Leash tools (`get_summary`, `list_invoices`, `list_followups`, `check_inbox`, `create_invoice_draft`, `draft_reminder`, `prepare_send_invoice`) plus the PayPal Agent Toolkit. Sends come back as **confirm cards** with editable text; the model never calls a send endpoint itself. |
 
 Every AI feature has a rule-based fallback, so the app keeps working with no key, a rejected key or an outage.
 
@@ -221,13 +222,22 @@ Every AI feature has a rule-based fallback, so the app keeps working with no key
 ## Project structure
 
 ```
-app/            Next.js routes: landing, app pages under (app)/, client pay page, /api route handlers
-components/     UI: Shell, InvoiceDoc, InvoiceGrid (AG Grid), FollowUp, PayQR, Logo, landing effects
-lib/            Domain logic: invoices, rules, paypal, paypalToolkit, ai, extract, followup, agent, store
-lib/connectors/ Telegram, email (IMAP + SMTP), WhatsApp export parser
-tests/          node:test unit tests (rules, extraction, WhatsApp import)
-docs/           SYSTEM_DESIGN.md, GO_LIVE.md
-submission/     Devpost text, thumbnail and gallery screenshots
+app/                    Routes only: landing, (app)/ pages, pay page, /api handlers, error + loading boundaries
+components/
+  ui/                   Primitives, icons, skeletons, theme toggle
+  layout/               Shell (sidebar) and AppProvider (client state)
+  invoice/              InvoiceDoc, InvoiceGrid (AG Grid), FollowUp, PayQR
+  brand/                Logo, brand icons, illustrations
+  landing/sections/     One file per landing-page chapter
+lib/
+  domain/               Pure logic, browser-safe: models, collections rules, formatting
+  services/             Invoice lifecycle (approve, send, remind, paid, sync)
+  ai/                   Gemini client with model fallback, extraction, follow-ups, assistant
+  integrations/         PayPal (REST + Agent Toolkit), Telegram, email, WhatsApp, FX rates
+  server/               env (zod-validated), SQLite, sessions, crypto, logger, errors
+tests/                  node:test suites: rules, extraction, invoices, PayPal (mocked), agent, AI fallback
+docs/                   ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
+.github/workflows/      CI: typecheck, lint, format, tests, build
 ```
 
 ## Scripts
@@ -236,8 +246,11 @@ submission/     Devpost text, thumbnail and gallery screenshots
 |---|---|
 | `npm run dev` | Development server on http://localhost:3000 |
 | `npm run build` / `npm start` | Production build and server |
-| `npm test` | Unit tests (16) |
+| `npm test` | Unit and integration tests (39) |
 | `npm run typecheck` | TypeScript check |
+| `npm run lint` | ESLint (Next.js + TypeScript rules) |
+| `npm run format` | Prettier |
+| `npm run check` | Typecheck + lint + tests (what CI runs, plus a build) |
 
 ## Deploy
 
@@ -256,7 +269,9 @@ submission/     Devpost text, thumbnail and gallery screenshots
 | Doc | Contents |
 |---|---|
 | [GETTING_STARTED.md](GETTING_STARTED.md) | Setup, keys, connectors, commands, troubleshooting |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Folder map, layering rules, where to add code |
 | [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Architecture, data model, flows |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup, checks, code style |
 | [docs/GO_LIVE.md](docs/GO_LIVE.md) | Deployment checklist |
 | [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | 3-minute demo video script |
 | [/brand](app/brand/page.tsx) | Logo, colours, type and icon set |

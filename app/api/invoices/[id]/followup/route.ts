@@ -1,6 +1,7 @@
-import { withSession, HttpError } from "@/lib/session";
-import { draftMessage } from "@/lib/followup";
-import { STAGE_LABEL } from "@/lib/rules";
+import { withSession } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { draftMessage } from "@/lib/ai/followup";
+import { STAGE_LABEL } from "@/lib/domain/rules";
 
 type Ctx = { params: Promise<{ id: string }> };
 
@@ -15,7 +16,13 @@ export const POST = withSession<Ctx>(
     const since = Date.now() - 12 * 3_600_000;
     const already = s
       .activity(100)
-      .some((e) => e.type === "reminder_suggested" && e.invoiceId === inv.id && new Date(e.at).getTime() > since && e.message.includes(STAGE_LABEL[draft.stage as "FIRM"]?.toLowerCase() ?? "~"));
+      .some(
+        (e) =>
+          e.type === "reminder_suggested" &&
+          e.invoiceId === inv.id &&
+          new Date(e.at).getTime() > since &&
+          e.message.includes(STAGE_LABEL[draft.stage as "FIRM"]?.toLowerCase() ?? "~"),
+      );
     if (draft.stage !== "SEND" && !already) {
       s.log({
         type: "reminder_suggested",

@@ -1,23 +1,27 @@
-import { verifyWebhook } from "@/lib/paypal";
-import { findInvoiceByPayPalId, store } from "@/lib/store";
+import { verifyWebhook, type PayPalWebhookEvent } from "@/lib/integrations/paypal/client";
+import { log } from "@/lib/server/logger";
+import { findInvoiceByPayPalId, store } from "@/lib/server/db";
 
 // PayPal tells us when an invoice is paid or cancelled, even if the client pays days later.
 // No session here: authenticity comes from PayPal's signature, verified with PayPal's API.
 export async function POST(req: Request) {
   const raw = await req.text();
   if (raw.length > 200_000) return Response.json({ error: "Too large" }, { status: 413 });
-  let event: any;
+  let event: PayPalWebhookEvent;
   try {
     event = JSON.parse(raw);
   } catch {
     return Response.json({ error: "Invalid JSON" }, { status: 400 });
   }
   const ok = await verifyWebhook(req.headers, event).catch(() => false);
-  if (!ok) return Response.json({ error: "Signature verification failed" }, { status: 400 });
+  if (!ok) {
+    log.warn("PayPal webhook rejected: signature not verified", { type: event.event_type });
+    return Response.json({ error: "Signature verification failed" }, { status: 400 });
+  }
 
   const type = String(event.event_type ?? "");
   const resource = event.resource ?? {};
-  const invId: string | undefined = resource.invoice?.id ?? resource.id;
+  const invId = resource.invoice?.id ?? resource.id;
   const hit = invId ? findInvoiceByPayPalId(invId) : undefined;
   if (hit && type.startsWith("INVOICING.INVOICE.")) {
     const s = store(hit.workspaceId);
@@ -34,5 +38,6 @@ export async function POST(req: Request) {
       s.log({ ...ref, type: "status", actor: "paypal", message: `PayPal: ${inv.number} was refunded` });
     }
   }
+  log.info("PayPal webhook processed", { type, invoiceId: invId, matched: Boolean(hit) });
   return Response.json({ received: true });
 }

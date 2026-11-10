@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseWhatsAppExport } from "../lib/connectors/whatsapp.ts";
+import { parseWhatsAppExport } from "@/lib/integrations/connectors/whatsapp";
 
 test("iOS export", () => {
   const p = parseWhatsAppExport(

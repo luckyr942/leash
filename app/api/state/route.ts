@@ -1,8 +1,9 @@
-import { withSession } from "@/lib/session";
-import { paypalConfigured } from "@/lib/paypal";
-import { aiConfigured, activeModel, aiKeyProblem } from "@/lib/ai";
-import { connectorStatus } from "@/lib/connectors/status";
-import { getRates } from "@/lib/fx";
+import { withSession } from "@/lib/server/session";
+import { paypalConfigured } from "@/lib/integrations/paypal/client";
+import { aiConfigured, activeModel, aiKeyProblem } from "@/lib/ai/client";
+import { connectorStatus } from "@/lib/integrations/connectors/status";
+import { getRates } from "@/lib/integrations/fx";
+import { env } from "@/lib/server/env";
 
 export const dynamic = "force-dynamic";
 
@@ -22,8 +23,8 @@ export const GET = withSession(
           ai: aiConfigured(),
           aiModel: activeModel(),
           aiProblem: aiKeyProblem(),
-          env: process.env.PAYPAL_ENV === "live" ? "live" : "sandbox",
-          webhooks: Boolean(process.env.PAYPAL_WEBHOOK_ID),
+          env: env().PAYPAL_ENV,
+          webhooks: Boolean(env().PAYPAL_WEBHOOK_ID),
         },
       },
       { headers: { "Cache-Control": "no-store" } },

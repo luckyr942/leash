@@ -1,6 +1,6 @@
 import { timingSafeEqual } from "node:crypto";
-import { findInvoiceById, store } from "@/lib/store";
-import { simulatedClientPayment } from "@/lib/invoices";
+import { findInvoiceById, store } from "@/lib/server/db";
+import { simulatedClientPayment } from "@/lib/services/invoices";
 
 // Demo mode only: the client-side "pay" page posts here. Live invoices are paid on PayPal's own page.
 type Ctx = { params: Promise<{ id: string }> };

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Logo, LogoMark, BRAND } from "@/components/Logo";
-import { BRAND_ICONS } from "@/components/BrandIcons";
+import { Logo, LogoMark, BRAND } from "@/components/brand/Logo";
+import { BRAND_ICONS } from "@/components/brand/BrandIcons";
 
 export const metadata = { title: "Brand · Leash", robots: { index: false } };
 

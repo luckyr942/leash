@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import PayQR from "@/components/PayQR";
+import PayQR from "@/components/invoice/PayQR";
 
 /** Floating "try it on your phone" chip with a QR code to this site's live demo. Desktop only, dismissible. */
 export default function PhoneQR() {
@@ -21,6 +21,7 @@ export default function PhoneQR() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- origin is only known in the browser
     setUrl(`${window.location.origin}/dashboard`);
     try {
       if (sessionStorage.getItem("leash-qr-closed")) setOpen(false);

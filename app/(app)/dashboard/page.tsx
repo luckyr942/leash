@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import { useApp } from "@/components/AppProvider";
-import { Avatar, PageHead, StagePill, Empty } from "@/components/UI";
-import { EmptyArt } from "@/components/Art";
-import { ArrowRight, Plus, Sparkle } from "@/components/Icons";
-import { assess, daysOverdue, isOverdue } from "@/lib/rules";
-import { money, ago, sumByCurrency, toBase } from "@/lib/format";
+import { useApp } from "@/components/layout/AppProvider";
+import { Avatar, PageHead, StagePill, Empty } from "@/components/ui/Primitives";
+import { EmptyArt } from "@/components/brand/Art";
+import { ArrowRight, Plus, Sparkle } from "@/components/ui/Icons";
+import { assess, daysOverdue, isOverdue } from "@/lib/domain/rules";
+import { money, ago, sumByCurrency, toBase } from "@/lib/domain/format";
 
 const ACTION_BTN: Record<string, string> = {
   APPROVE: "Review & approve",
@@ -34,7 +34,11 @@ export default function Overview() {
   const fx = state.fx;
   const outS = sumByCurrency(sent, cur, fx);
   const overS = sumByCurrency(overdue, cur, fx);
-  const colS = sumByCurrency(invoices.filter((i) => i.status === "PAID"), cur, fx);
+  const colS = sumByCurrency(
+    invoices.filter((i) => i.status === "PAID"),
+    cur,
+    fx,
+  );
   const outstanding = outS.home;
   const drafts = invoices.filter((i) => i.status === "DRAFT" || i.status === "APPROVED");
 
@@ -45,7 +49,7 @@ export default function Overview() {
 
   const aging = BUCKETS.map((b) => ({
     ...b,
-    amount: sent.filter((i) => b.test(daysOverdue(i.dueDate))).reduce((s, i) => s + (i.currency === cur ? i.total : toBase(i.total, i.currency, fx) ?? 0), 0),
+    amount: sent.filter((i) => b.test(daysOverdue(i.dueDate))).reduce((s, i) => s + (i.currency === cur ? i.total : (toBase(i.total, i.currency, fx) ?? 0)), 0),
   }));
   const agingTotal = aging.reduce((s, b) => s + b.amount, 0) || 1;
   const first = profile.yourName.split(" ")[0];
@@ -56,7 +60,10 @@ export default function Overview() {
 
   return (
     <>
-      <PageHead title={first ? `${hello}, ${first}` : "Overview"} sub={`${today} · ${attention.length ? `${attention.length} thing${attention.length === 1 ? " needs" : "s need"} your attention` : "You're all caught up"}`}>
+      <PageHead
+        title={first ? `${hello}, ${first}` : "Overview"}
+        sub={`${today} · ${attention.length ? `${attention.length} thing${attention.length === 1 ? " needs" : "s need"} your attention` : "You're all caught up"}`}
+      >
         <Link href="/new" className="btn primary">
           <Plus size={16} /> New invoice
         </Link>
@@ -92,7 +99,9 @@ export default function Overview() {
         </div>
         <div className="aging" role="img" aria-label="Outstanding amount by days overdue">
           {aging.map((b) =>
-            b.amount > 0 ? <div key={b.key} className={`seg-${b.key}`} style={{ flexGrow: b.amount / agingTotal }} title={`${b.label}: ${money(b.amount, cur)}`} /> : null,
+            b.amount > 0 ? (
+              <div key={b.key} className={`seg-${b.key}`} style={{ flexGrow: b.amount / agingTotal }} title={`${b.label}: ${money(b.amount, cur)}`} />
+            ) : null,
           )}
         </div>
         <div className="aging-legend">

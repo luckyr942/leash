@@ -1,5 +1,6 @@
-import { withSession, body, HttpError } from "@/lib/session";
-import { runAgent, type ChatTurn } from "@/lib/agent";
+import { withSession, body } from "@/lib/server/session";
+import { HttpError } from "@/lib/server/errors";
+import { runAgent, type ChatTurn } from "@/lib/ai/agent";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;

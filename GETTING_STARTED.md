@@ -94,26 +94,21 @@ leash/
 │  ├─ api/                  Route handlers: state, extract, invoices, agent,
 │  │                        connectors, inbox, settings, workspace, paypal/webhook, health
 │  ├─ icon.svg, favicon.ico, apple-icon.png, opengraph-image.png, manifest.ts
-├─ components/              Shell (sidebar), UI, Logo, BrandIcons, Icons,
-│  │                        InvoiceDoc, InvoiceGrid (AG Grid), FollowUp, PayQR
-│  └─ landing/              HeroVideo, LandingFX (scroll effects), PhoneQR
+├─ components/
+│  ├─ ui/                   Primitives (pills, avatar, empty state), Icons, ThemeToggle, skeletons
+│  ├─ layout/               Shell (sidebar), AppProvider (client state + API helper)
+│  ├─ invoice/              InvoiceDoc, InvoiceGrid (AG Grid), FollowUp, PayQR
+│  ├─ brand/                Logo, BrandIcons, Art
+│  └─ landing/              HeroVideo, LandingFX, PhoneQR, sections/ (one file per chapter)
 ├─ lib/
-│  ├─ ai.ts                 Gemini client (falls back to rules if no key)
-│  ├─ extract.ts            Chat → invoice (Gemini JSON schema) + extractDemo.ts
-│  ├─ followup.ts           Reminder drafting
-│  ├─ rules.ts              Collections rules: wait / friendly / firm / final / call
-│  ├─ agent.ts              Assistant: Gemini function calling + confirm cards
-│  ├─ paypal.ts             PayPal Invoicing v2 + webhook verification
-│  ├─ paypalToolkit.ts      PayPal Agent Toolkit (read-only tools, live mode)
-│  ├─ invoices.ts           Approve / send / remind / mark paid / cancel
-│  ├─ store.ts              SQLite (node:sqlite) data layer
-│  ├─ session.ts, secret.ts Signed sessions, encryption of connector secrets
-│  ├─ fx.ts, format.ts      Exchange rates and money formatting
-│  ├─ sample.ts             Sample month of data
-│  └─ connectors/           telegram, email (SMTP + IMAP), whatsapp
+│  ├─ domain/               Pure logic: models, rules (wait/friendly/firm/final/call), format, state
+│  ├─ services/invoices.ts  Approve / send / remind / mark paid / cancel / sync
+│  ├─ ai/                   client (Gemini + model fallback), extract (+ rule fallback), followup, agent
+│  ├─ integrations/         paypal/ (REST client, Agent Toolkit), connectors/ (telegram, email, whatsapp), fx
+│  └─ server/               env (validated settings), db (SQLite), session, crypto, logger, errors, seed
 ├─ public/                  brand/ (logo files), media/ (hero video, screenshots), app icons
-├─ tests/                   node:test unit tests
-├─ docs/                    SYSTEM_DESIGN.md, GO_LIVE.md
+├─ tests/                   node:test suites (npm test)
+├─ docs/                    ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
 ├─ submission/              Devpost text, thumbnail, gallery screenshots
 ├─ DEMO_SCRIPT.md           3-minute video script
 ├─ render.yaml              One-click Render deploy
