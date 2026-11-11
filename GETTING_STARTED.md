@@ -108,9 +108,8 @@ leash/
 │  └─ server/               env (validated settings), db (SQLite), session, crypto, logger, errors, seed
 ├─ public/                  brand/ (logo files), media/ (hero video, screenshots), app icons
 ├─ tests/                   node:test suites (npm test)
-├─ docs/                    ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
-├─ submission/              Devpost text, thumbnail, gallery screenshots
-├─ DEMO_SCRIPT.md           3-minute video script
+├─ docs/                    ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md, TESTING.md, screenshots/
+├─ video/intro/             Launch intro (HTML timeline, renderer, original soundtrack)
 ├─ render.yaml              One-click Render deploy
 └─ .env.example             All settings, documented
 ```
@@ -126,16 +125,7 @@ Data is stored in `data/leash.sqlite`, which is created automatically and ignore
 
 More detail is in `docs/GO_LIVE.md`.
 
-## 8. Hackathon submission checklist
-
-- [ ] Public GitHub repo with README + MIT license
-- [ ] Live demo URL (Render) or these run instructions
-- [ ] Video under 3 minutes on YouTube (script in `DEMO_SCRIPT.md`)
-- [ ] Devpost fields: copy them from `submission/SUBMISSION.md`
-- [ ] Thumbnail `submission/leash-thumbnail.png` and gallery images `submission/1-…11-…`
-- [ ] Deadline: **Thu Nov 12, 2026, 12:00 pm PST**
-
-## 9. Troubleshooting
+## 8. Troubleshooting
 
 | Problem | Fix |
 |---|---|

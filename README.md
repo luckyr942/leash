@@ -275,7 +275,6 @@ docs/                   ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
 | [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Architecture, data model, flows |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup, checks, code style |
 | [docs/GO_LIVE.md](docs/GO_LIVE.md) | Deployment checklist |
-| [DEMO_SCRIPT.md](DEMO_SCRIPT.md) | 3-minute demo video script |
 | [/brand](app/brand/page.tsx) | Logo, colours, type and icon set |
 
 ## Built with

@@ -9,6 +9,7 @@ import { paypalConfigured } from "@/lib/integrations/paypal/client";
 import { paypalToolDecls, isPayPalTool, callPayPalTool } from "@/lib/integrations/paypal/toolkit";
 import { assess, isOverdue, STAGE_LABEL } from "@/lib/domain/rules";
 import { extractInvoice } from "./extract";
+import { getRates } from "@/lib/integrations/fx";
 import { createDraft, validate } from "@/lib/services/invoices";
 import { draftMessage } from "./followup";
 import { syncTelegram } from "@/lib/integrations/connectors/telegram";
@@ -163,12 +164,31 @@ function toolset(s: Store, cards: Card[]) {
   return {
     async get_summary() {
       const inv = s.invoices();
-      const sum = (f: (i: Invoice) => boolean) => inv.filter(f).reduce((a, i) => a + i.total, 0);
+      // Totals in the user's home currency (ECB rates); never add pounds to dollars as if they were the same.
+      const home = s.getProfile().currency || "USD";
+      const rates = inv.some((i) => i.currency !== home) ? await getRates(home) : null;
+      const toHome = (i: Invoice) => (i.currency === home ? i.total : rates?.rates[i.currency] ? i.total / rates.rates[i.currency] : null);
+      const total = (f: (i: Invoice) => boolean) => {
+        const list = inv.filter(f);
+        const converted = list.map(toHome);
+        if (converted.every((n) => n !== null)) {
+          const approx = list.some((i) => i.currency !== home) ? " (approx., converted)" : "";
+          return (
+            money(
+              converted.reduce((a: number, n) => a + (n as number), 0),
+              home,
+            ) + approx
+          );
+        }
+        const by = new Map<string, number>();
+        for (const i of list) by.set(i.currency, (by.get(i.currency) ?? 0) + i.total);
+        return [...by].map(([c, n]) => money(n, c)).join(" + ") || money(0, home);
+      };
       return {
-        outstanding: money(sum((i) => i.status === "SENT")),
-        overdue: money(sum((i) => isOverdue(i))),
+        outstanding: total((i) => i.status === "SENT"),
+        overdue: total((i) => isOverdue(i)),
         overdueCount: inv.filter((i) => isOverdue(i)).length,
-        collected: money(sum((i) => i.status === "PAID")),
+        collected: total((i) => i.status === "PAID"),
         drafts: inv.filter((i) => i.status === "DRAFT").length,
         total: inv.length,
       };
