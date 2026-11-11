@@ -9,3 +9,6 @@ next-env.d.ts
 
 # Local Claude Code preview config
 .claude/
+
+# Rendered videos (large); source lives in video/intro
+video/out/

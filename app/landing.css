@@ -151,6 +151,17 @@
   .lp .h-links {
     display: none;
   }
+  .lp .h-nav-cta {
+    gap: 6px;
+  }
+}
+@media (max-width: 440px) {
+  .lp .h-nav-cta .pill {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+}
+@media (max-width: 330px) {
   .lp .h-nav-cta .soft {
     display: none;
   }

@@ -251,6 +251,7 @@ docs/                   ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
 | `npm run lint` | ESLint (Next.js + TypeScript rules) |
 | `npm run format` | Prettier |
 | `npm run check` | Typecheck + lint + tests (what CI runs, plus a build) |
+| `npm run e2e -- <url> <buyer-email>` | Live end-to-end check with real PayPal sandbox + Gemini ([docs/TESTING.md](docs/TESTING.md)) |
 
 ## Deploy
 
@@ -269,6 +270,7 @@ docs/                   ARCHITECTURE.md, SYSTEM_DESIGN.md, GO_LIVE.md
 | Doc | Contents |
 |---|---|
 | [GETTING_STARTED.md](GETTING_STARTED.md) | Setup, keys, connectors, commands, troubleshooting |
+| [docs/TESTING.md](docs/TESTING.md) | Automated and manual test guide |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Folder map, layering rules, where to add code |
 | [docs/SYSTEM_DESIGN.md](docs/SYSTEM_DESIGN.md) | Architecture, data model, flows |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | Local setup, checks, code style |

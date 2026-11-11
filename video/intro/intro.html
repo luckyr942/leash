@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Leash launch intro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@500;600&display=block" rel="stylesheet" />
+<style>
+  /* 1920x1080 stage. Every frame is computed from one number, t (seconds), so the render is exact. */
+  :root { --navy: #05070d; --ink: #111827; --ink2: #374151; --sky: #6ec1ff; --sky2: #ddf0ff; --light: #f4f7fb; --muted: #a3adbd; --red: #ff6b6b; --green: #16a34a; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--navy); }
+  body { font-family: "Plus Jakarta Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; inset: 0; overflow: hidden; }
+  .bg { position: absolute; inset: 0; will-change: clip-path, transform; }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .w { display: inline-block; white-space: pre; margin-right: 0.07em; will-change: transform, opacity, filter; }
+  .mono { font-family: "Geist Mono", ui-monospace, monospace; }
+  .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+
+  /* dark ambience */
+  .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: .55; }
+  .vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,.55) 100%); pointer-events: none; }
+  .grain { position: absolute; inset: -50%; opacity: .06; pointer-events: none; mix-blend-mode: overlay; }
+
+  h1.big { font-size: 112px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.02; color: #fff; }
+  h2.sub { font-size: 76px; font-weight: 700; letter-spacing: -0.04em; color: var(--muted); margin-top: 18px; }
+
+  .chip { display: inline-flex; align-items: center; gap: 14px; padding: 18px 28px; border-radius: 999px; font-size: 26px; font-weight: 600; }
+  .chip.dark { background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.14); color: #e5e9f0; }
+  .tick { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-size: 17px; font-weight: 800; }
+
+  /* S2 chat */
+  .phone { position: absolute; left: 230px; top: 250px; width: 620px; height: 560px; border-radius: 56px; background: #0e131f; border: 1px solid rgba(255,255,255,.1); box-shadow: 0 60px 120px rgba(0,0,0,.6); padding: 54px 34px; }
+  .phone .who { display: flex; align-items: center; gap: 16px; color: #fff; font-weight: 700; font-size: 26px; padding-bottom: 26px; border-bottom: 1px solid rgba(255,255,255,.08); }
+  .phone .av { width: 54px; height: 54px; border-radius: 50%; background: #f5d0fe; color: #6b21a8; display: grid; place-items: center; font-weight: 800; font-size: 22px; }
+  .phone .who small { display: block; color: #6b7686; font-weight: 500; font-size: 18px; }
+  .bubble { margin-top: 34px; margin-left: auto; max-width: 470px; background: var(--sky); color: #06223b; border-radius: 30px 30px 8px 30px; padding: 24px 28px; font-size: 25px; font-weight: 600; line-height: 1.35; }
+  .bubble .link { display: block; margin-top: 14px; background: rgba(255,255,255,.55); border-radius: 16px; padding: 14px 18px; font-size: 21px; }
+  .seen { text-align: right; color: #6b7686; font-size: 20px; margin-top: 12px; font-weight: 600; }
+  .counter { position: absolute; left: 980px; top: 330px; width: 760px; }
+  .counter .lbl { color: var(--muted); font-size: 30px; font-weight: 600; letter-spacing: .02em; }
+  .counter .num { font-size: 230px; font-weight: 800; letter-spacing: -0.05em; line-height: 1; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .counter .cap { font-size: 46px; color: #fff; font-weight: 700; margin-top: 26px; letter-spacing: -0.03em; }
+
+  /* S4 logo */
+  .lockup { position: absolute; left: 50%; top: 50%; display: flex; align-items: center; gap: 44px; }
+  .mark { width: 230px; height: 230px; filter: drop-shadow(0 30px 50px rgba(17,24,39,.25)); }
+  .word { font-size: 210px; font-weight: 800; letter-spacing: -0.06em; color: var(--ink); line-height: 1; overflow: hidden; }
+  .tagline { position: absolute; left: 0; right: 0; top: 735px; text-align: center; font-size: 54px; font-weight: 600; color: #0b2540; letter-spacing: -0.03em; }
+
+  /* S5 product */
+  .left { position: absolute; left: 150px; top: 0; bottom: 0; width: 640px; display: flex; flex-direction: column; justify-content: center; }
+  .kicker { font-size: 24px; color: #1a6fd1; font-weight: 600; letter-spacing: .08em; margin-bottom: 26px; }
+  .heads { position: relative; height: 330px; }
+  .head { position: absolute; left: 0; top: 0; font-size: 78px; font-weight: 800; letter-spacing: -0.045em; line-height: 1.04; color: var(--ink); }
+  .head em { font-style: normal; color: #1a6fd1; }
+  .steps { display: flex; gap: 12px; margin-top: 40px; }
+  .steps i { display: block; height: 8px; width: 46px; border-radius: 9px; background: #d7dde6; overflow: hidden; }
+  .steps i b { display: block; height: 100%; background: var(--ink); width: 0; }
+  .persp { position: absolute; left: 820px; top: 150px; width: 1180px; height: 790px; perspective: 2200px; }
+  .frame { position: absolute; left: 0; top: 0; width: 1110px; border-radius: 22px; background: #fff; box-shadow: 0 50px 120px rgba(11,37,64,.28), 0 0 0 1px rgba(11,37,64,.08); overflow: hidden; transform-origin: 0% 50%; will-change: transform, opacity; }
+  .frame .bar { height: 46px; background: #eef2f7; display: flex; align-items: center; gap: 9px; padding: 0 18px; }
+  .frame .bar i { width: 13px; height: 13px; border-radius: 50%; background: #d3d9e2; }
+  .frame .bar span { margin-left: 18px; background: #fff; border-radius: 9px; padding: 6px 16px; font-size: 16px; color: #6b7686; }
+  .frame img { display: block; width: 1110px; height: 740px; object-fit: cover; object-position: top left; }
+  .float { position: absolute; display: flex; align-items: center; gap: 16px; background: #fff; border-radius: 22px; padding: 20px 26px; box-shadow: 0 30px 60px rgba(11,37,64,.22), 0 0 0 1px rgba(11,37,64,.06); font-size: 24px; color: var(--ink); will-change: transform, opacity; }
+  .float b { display: block; font-weight: 700; }
+  .float span { display: block; color: #6b7686; font-size: 19px; margin-top: 2px; }
+  .float .ic { width: 52px; height: 52px; border-radius: 15px; display: grid; place-items: center; font-size: 26px; font-weight: 800; }
+
+  /* S6 trust */
+  .badges { display: flex; gap: 18px; margin-top: 64px; flex-wrap: wrap; justify-content: center; }
+  .badge { padding: 20px 30px; border-radius: 999px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: #e5e9f0; font-size: 28px; font-weight: 600; }
+  .badge b { color: var(--sky); }
+
+  /* S7 end card */
+  .end-url { margin-top: 56px; background: var(--ink); color: #fff; padding: 22px 38px; border-radius: 999px; font-size: 34px; }
+  .end-foot { position: absolute; bottom: 70px; left: 0; right: 0; text-align: center; color: #0b2540; font-size: 24px; font-weight: 600; opacity: .7; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <!-- background panels, later ones on top -->
+  <div class="bg" id="bgDark" style="background: var(--navy)"></div>
+  <div class="bg" id="ambience">
+    <div class="orb" id="orb1" style="width:900px;height:900px;background:#1a6fd1"></div>
+    <div class="orb" id="orb2" style="width:700px;height:700px;background:#6ec1ff"></div>
+  </div>
+  <div class="bg" id="bgSky" style="background: radial-gradient(circle at 50% 45%, #a9dcff 0%, #6ec1ff 55%, #4aa8ef 100%)"></div>
+  <div class="bg" id="bgLight" style="background: radial-gradient(circle at 78% 40%, #ddf0ff 0%, #f4f7fb 55%)"></div>
+  <div class="bg" id="bgDark2" style="background: radial-gradient(circle at 50% 50%, #0b1a33 0%, #05070d 70%)">
+    <div class="orb" id="orb1b" style="width:900px;height:900px;background:#1a6fd1"></div>
+    <div class="orb" id="orb2b" style="width:700px;height:700px;background:#6ec1ff"></div>
+  </div>
+  <div class="bg" id="bgSky2" style="background: radial-gradient(circle at 50% 40%, #c4e7ff 0%, #6ec1ff 60%, #4aa8ef 100%)"></div>
+
+  <!-- S1: the work -->
+  <section class="scene" id="s1">
+    <div class="center">
+      <h1 class="big" data-words="You did the work." id="s1a"></h1>
+      <h2 class="sub" data-words="You sent the invoice." id="s1b"></h2>
+      <div style="margin-top:56px" id="s1c">
+        <span class="chip dark mono"><span class="tick" style="background:#16a34a;color:#fff">✓</span>LSH-2026-0004 · $1,750.00 · Sent</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- S2: silence -->
+  <section class="scene" id="s2">
+    <div class="phone" id="s2phone">
+      <div class="who"><div class="av">PN</div><div>Priya Nair<small>Initech</small></div></div>
+      <div class="bubble" id="s2bubble">Hi Priya! Here's the invoice for the brand refresh 👇<span class="link mono">paypal.com/invoice/p/#INV2-4K…</span></div>
+      <div class="seen" id="s2seen">Seen ✓✓</div>
+    </div>
+    <div class="counter">
+      <div class="lbl" id="s2lbl">WAITING FOR PAYMENT</div>
+      <div class="num" id="s2num">Day 1</div>
+      <div class="cap" id="s2cap">No reply.</div>
+    </div>
+  </section>
+
+  <!-- S3: the tension -->
+  <section class="scene" id="s3">
+    <div class="center">
+      <h1 class="big" data-words="Chasing money is awkward." id="s3a"></h1>
+      <h1 class="big" style="margin-top:14px" id="s3b"></h1>
+    </div>
+  </section>
+
+  <!-- S4: logo reveal -->
+  <section class="scene" id="s4">
+    <div class="lockup" id="s4lock">
+      <svg class="mark" id="s4mark" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ffffff"/><circle cx="24" cy="15.5" r="6" fill="none" stroke="#111827" stroke-width="5.5"/><path d="M24 21.5V35.5a9.5 9.5 0 0 0 9.5 9.5H36" fill="none" stroke="#111827" stroke-width="5.5" stroke-linecap="round"/><circle cx="44.5" cy="45" r="7.5" fill="#111827"/></svg>
+      <div class="word" id="s4word">Leash</div>
+    </div>
+    <div class="tagline" data-words="Get paid without the awkward follow-ups." id="s4tag"></div>
+  </section>
+
+  <!-- S5: product -->
+  <section class="scene" id="s5">
+    <div class="left">
+      <div class="kicker mono" id="s5kick">01 / 04</div>
+      <div class="heads">
+        <div class="head" id="h0"></div>
+        <div class="head" id="h1"></div>
+        <div class="head" id="h2"></div>
+        <div class="head" id="h3"></div>
+      </div>
+      <div class="steps"><i><b></b></i><i><b></b></i><i><b></b></i><i><b></b></i></div>
+    </div>
+    <div class="persp">
+      <div class="frame" id="f0"><div class="bar"><i></i><i></i><i></i><span>leash.app/new</span></div><img src="../../docs/screenshots/3-chat-to-invoice.png" /></div>
+      <div class="frame" id="f1"><div class="bar"><i></i><i></i><i></i><span>leash.app/followups</span></div><img src="../../docs/screenshots/4-followups.png" /></div>
+      <div class="frame" id="f2"><div class="bar"><i></i><i></i><i></i><span>leash.app/assistant</span></div><img src="../../docs/screenshots/10-assistant.png" /></div>
+      <div class="frame" id="f3"><div class="bar"><i></i><i></i><i></i><span>leash.app/dashboard</span></div><img src="../../docs/screenshots/2-overview.png" /></div>
+      <div class="float" id="c0" style="left:620px;top:600px"><div class="ic" style="background:#ddf0ff;color:#1a6fd1">✦</div><div><b>Extracted by Gemini</b><span>Client, work, $500, due Nov 10</span></div></div>
+      <div class="float" id="c1" style="left:640px;top:610px"><div class="ic" style="background:#fef3c7;color:#b45309">!</div><div><b>Firm reminder ready</b><span>12 days overdue · tap to send</span></div></div>
+      <div class="float" id="c2" style="left:600px;top:610px"><div class="ic" style="background:#111827;color:#fff">✓</div><div><b>Confirm &amp; send</b><span>Nothing goes out before your tap</span></div></div>
+      <div class="float" id="c3" style="left:660px;top:600px"><div class="ic" style="background:#dcfce7;color:#16a34a">$</div><div><b>+$1,750.00 received</b><span>via PayPal · just now</span></div></div>
+    </div>
+  </section>
+
+  <!-- S6: trust -->
+  <section class="scene" id="s6">
+    <div class="center">
+      <h1 class="big" id="s6a" style="font-size:96px"></h1>
+      <div class="badges" id="s6b">
+        <span class="badge"><b>PayPal</b> Invoicing v2</span>
+        <span class="badge"><b>PayPal</b> Webhooks</span>
+        <span class="badge"><b>PayPal</b> Agent Toolkit</span>
+        <span class="badge"><b>Google</b> Gemini</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- S7: end card -->
+  <section class="scene" id="s7">
+    <div class="center">
+      <div style="display:flex;align-items:center;gap:34px" id="s7lock">
+        <svg class="mark" style="width:170px;height:170px" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#ffffff"/><circle cx="24" cy="15.5" r="6" fill="none" stroke="#111827" stroke-width="5.5"/><path d="M24 21.5V35.5a9.5 9.5 0 0 0 9.5 9.5H36" fill="none" stroke="#111827" stroke-width="5.5" stroke-linecap="round"/><circle cx="44.5" cy="45" r="7.5" fill="#111827"/></svg>
+        <div class="word" style="font-size:160px">Leash</div>
+      </div>
+      <div style="font-size:50px;font-weight:600;color:#0b2540;letter-spacing:-0.03em;margin-top:40px" data-words="Get paid without the awkward follow-ups." id="s7tag"></div>
+      <div class="end-url mono" id="s7url">leash-58zl.onrender.com</div>
+    </div>
+    <div class="end-foot" id="s7foot">Built for the PayPal AI Hackathon 2026 · Open source, MIT</div>
+  </section>
+
+  <div class="vignette" id="vig"></div>
+  <canvas class="grain" id="grain" width="512" height="512"></canvas>
+</div>
+
+<script>
+// ---------- timeline helpers ----------
+const DURATION = 33;
+const $ = (id) => document.getElementById(id);
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const outExpo = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x));
+const outCubic = (x) => 1 - Math.pow(1 - x, 3);
+const inOutCubic = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
+const outBack = (x) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2); };
+const lerp = (a, b, p) => a + (b - a) * p;
+
+// Split text into word spans (supports *word* for accent colour).
+function words(el, text, accent) {
+  el.innerHTML = "";
+  text.split(" ").forEach((w, i, arr) => {
+    const s = document.createElement("span");
+    s.className = "w";
+    const acc = w.startsWith("*");
+    s.textContent = w.replace(/\*/g, "") + (i < arr.length - 1 ? " " : "");
+    if (acc) s.style.color = accent;
+    el.appendChild(s);
+  });
+}
+document.querySelectorAll("[data-words]").forEach((el) => words(el, el.dataset.words));
+words($("s3b"), "Not chasing it is *worse.*", "#ff6b6b");
+words($("s6a"), "Nothing is sent without *your tap.*", "#6ec1ff");
+const HEADS = ["Paste a chat. Get a *PayPal* *invoice.*", "Know exactly when to *nudge.*", "AI drafts it. *You* *approve* *it.*", "Paid. Tracked. *Done.*"];
+HEADS.forEach((h, i) => words($("h" + i), h, "#1a6fd1"));
+
+// Kinetic type: each word rises out of a blur, staggered. Exit fades + lifts.
+function type(el, t, start, end = Infinity, { stagger = 0.06, dur = 0.7, rise = 46, exit = 0.35 } = {}) {
+  const ws = el.querySelectorAll(".w");
+  const pOut = end === Infinity ? 0 : inOutCubic(prog(t, end - exit, end));
+  ws.forEach((w, i) => {
+    const p = outExpo(prog(t, start + i * stagger, start + i * stagger + dur));
+    const o = p * (1 - pOut);
+    w.style.opacity = o;
+    w.style.transform = `translateY(${(1 - p) * rise - pOut * 24}px)`;
+    w.style.filter = `blur(${(1 - p) * 14 + pOut * 8}px)`;
+  });
+}
+function show(el, o) { el.style.opacity = o; }
+function rise(el, t, start, { dur = 0.8, dy = 40, scale = 1, back = false } = {}) {
+  const raw = prog(t, start, start + dur);
+  const p = back ? outBack(raw) : outExpo(raw);
+  el.style.opacity = clamp(raw * 2);
+  el.style.transform = `translateY(${(1 - p) * dy}px) scale(${lerp(scale, 1, p)})`;
+}
+// Scene window with fade in/out.
+function scene(id, t, a, b, fin = 0.01, fout = 0.4) {
+  const el = $(id);
+  const o = prog(t, a, a + fin) * (1 - prog(t, b - fout, b));
+  el.style.opacity = o;
+  el.style.visibility = o > 0.001 ? "visible" : "hidden";
+  return o > 0.001;
+}
+// Background reveals.
+function circle(el, t, a, b, cx = 50, cy = 50) {
+  const p = inOutCubic(prog(t, a, b));
+  el.style.clipPath = `circle(${p * 130}% at ${cx}% ${cy}%)`;
+}
+function riseUp(el, t, a, b) {
+  const p = inOutCubic(prog(t, a, b));
+  el.style.clipPath = `inset(${(1 - p) * 100}% 0 0 0 round ${(1 - p) * 120}px ${(1 - p) * 120}px 0 0)`;
+}
+
+// Static film grain, drawn once; it jitters per frame.
+(() => {
+  const c = $("grain"), x = c.getContext("2d"), d = x.createImageData(512, 512);
+  let s = 7; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < d.data.length; i += 4) { const v = rnd() * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  x.putImageData(d, 0, 0);
+  c.style.width = c.style.height = "2900px";
+})();
+
+// ---------- the frame function ----------
+function render(t) {
+  // backgrounds
+  circle($("bgSky"), t, 9.45, 10.35);
+  riseUp($("bgLight"), t, 12.65, 13.35);
+  circle($("bgDark2"), t, 24.65, 25.45, 50, 50);
+  riseUp($("bgSky2"), t, 28.0, 28.7);
+  const darkAmb = t < 10.4 || (t > 24.9 && t < 28.7);
+  $("ambience").style.opacity = t < 10.4 ? 1 : 0;
+  $("orb1").style.transform = `translate(${-200 + Math.sin(t * 0.5) * 160}px, ${-150 + Math.cos(t * 0.4) * 120}px)`;
+  $("orb2").style.transform = `translate(${1300 + Math.cos(t * 0.45) * 180}px, ${500 + Math.sin(t * 0.35) * 140}px)`;
+  $("vig").style.opacity = darkAmb ? 1 : 0.25;
+  $("grain").style.transform = `translate(${(Math.floor(t * 24) * 137) % 600 - 600}px, ${(Math.floor(t * 24) * 251) % 600 - 600}px)`;
+  $("orb1b").style.transform = $("orb1").style.transform;
+  $("orb2b").style.transform = $("orb2").style.transform;
+
+  // S1: the work (0 – 3.4)
+  if (scene("s1", t, 0, 3.4)) {
+    type($("s1a"), t, 0.25);
+    type($("s1b"), t, 1.25);
+    rise($("s1c"), t, 1.95, { dy: 30 });
+  }
+
+  // S2: silence (3.4 – 6.9)
+  if (scene("s2", t, 3.4, 6.9, 0.3)) {
+    rise($("s2phone"), t, 3.4, { dy: 80, dur: 1 });
+    rise($("s2bubble"), t, 3.85, { dy: 24, scale: 0.92, back: true, dur: 0.6 });
+    show($("s2seen"), prog(t, 4.35, 4.6));
+    rise($("s2lbl"), t, 4.2, { dy: 20 });
+    const p = Math.pow(prog(t, 4.4, 6.25), 1.6);
+    const day = Math.max(1, Math.round(1 + p * 30));
+    $("s2num").textContent = `Day ${day}`;
+    const r = prog(t, 4.4, 6.25);
+    $("s2num").style.color = `rgb(${lerp(255, 255, r)}, ${lerp(255, 107, r)}, ${lerp(255, 107, r)})`;
+    rise($("s2num"), t, 4.25, { dy: 30 });
+    rise($("s2cap"), t, 5.0, { dy: 20 });
+    $("s2cap").textContent = t < 5.85 ? "No reply." : "Still no reply.";
+  }
+
+  // S3: tension (6.9 – 9.5)
+  if (scene("s3", t, 6.9, 9.55, 0.01, 0.01)) {
+    type($("s3a"), t, 7.0, 9.5);
+    type($("s3b"), t, 7.85, 9.5, { stagger: 0.09 });
+  }
+
+  // S4: logo reveal on sky (9.9 – 13.0)
+  if (scene("s4", t, 9.85, 13.0, 0.01, 0.35)) {
+    const pm = outBack(prog(t, 10.05, 10.75));
+    const slide = inOutCubic(prog(t, 10.75, 11.35));
+    const markW = 230, gap = 44, wordW = $("s4word").offsetWidth;
+    const total = markW + gap + wordW;
+    // mark starts centred alone, then the lockup centres as the word appears
+    const x0 = -markW / 2, x1 = -total / 2;
+    $("s4lock").style.transform = `translate(${lerp(x0, x1, slide)}px, -50%) translateY(-60px)`;
+    $("s4mark").style.transform = `scale(${lerp(0.3, 1, pm)}) rotate(${lerp(-18, 0, pm)}deg)`;
+    $("s4mark").style.opacity = clamp(prog(t, 10.05, 10.3));
+    $("s4word").style.clipPath = `inset(0 ${(1 - slide) * 100}% 0 0)`;
+    $("s4word").style.transform = `translateX(${(1 - slide) * -40}px)`;
+    type($("s4tag"), t, 11.35, 12.95, { stagger: 0.05, rise: 30 });
+  }
+
+  // S5: product beats (13.0 – 25.0), four beats of 3s
+  if (scene("s5", t, 13.0, 25.0, 0.01, 0.4)) {
+    const B = [13.0, 16.0, 19.0, 22.0];
+    const beat = t < 16 ? 0 : t < 19 ? 1 : t < 22 ? 2 : 3;
+    $("s5kick").textContent = `0${beat + 1} / 04`;
+    show($("s5kick"), prog(t, 13.2, 13.6));
+    document.querySelectorAll(".steps b").forEach((b, i) => (b.style.width = `${clamp(prog(t, B[i], B[i] + 3)) * 100}%`));
+    for (let i = 0; i < 4; i++) {
+      const a = B[i], end = i < 3 ? B[i + 1] + 0.05 : Infinity;
+      type($("h" + i), t, a + (i ? 0.2 : 0.35), end, { stagger: 0.055, rise: 36, exit: 0.3 });
+      // screenshot frame: swing in from the right, slow push, swing out to the left
+      const f = $("f" + i);
+      const pin = outExpo(prog(t, a + (i ? 0.05 : 0.25), a + (i ? 0.05 : 0.25) + 1.1));
+      const pout = i < 3 ? inOutCubic(prog(t, B[i + 1] - 0.05, B[i + 1] + 0.55)) : 0;
+      const push = prog(t, a, a + 3.4);
+      const x = lerp(260, 0, pin) - pout * 220;
+      const ry = lerp(-32, -9, pin) - push * 3 + pout * 18;
+      const s = lerp(0.92, 1, pin) + push * 0.035 - pout * 0.06;
+      f.style.opacity = clamp(pin * 1.4) * (1 - pout);
+      f.style.transform = `translateX(${x}px) translateY(${lerp(40, 0, pin)}px) rotateY(${ry}deg) rotateX(${3 - push * 1.5}deg) scale(${s})`;
+      f.style.zIndex = 10 + i;
+      // floating callout
+      const c = $("c" + i);
+      const pc = outBack(prog(t, a + 0.95, a + 1.55));
+      const cout = i < 3 ? prog(t, B[i + 1] - 0.15, B[i + 1] + 0.15) : 0;
+      c.style.opacity = clamp(prog(t, a + 0.95, a + 1.2)) * (1 - cout);
+      c.style.transform = `translateY(${(1 - pc) * 40 + Math.sin((t - a) * 2.2) * 6}px) scale(${lerp(0.7, 1, pc)})`;
+      c.style.zIndex = 30;
+    }
+  }
+
+  // S6: trust (25.0 – 28.3)
+  if (scene("s6", t, 25.0, 28.3, 0.01, 0.35)) {
+    type($("s6a"), t, 25.3);
+    $("s6b").querySelectorAll(".badge").forEach((b, i) => rise(b, t, 26.25 + i * 0.13, { dy: 30, scale: 0.85, back: true, dur: 0.6 }));
+  }
+
+  // S7: end card (28.4 – end)
+  if (scene("s7", t, 28.4, DURATION + 1, 0.01, 0.01)) {
+    const p = outBack(prog(t, 28.55, 29.25));
+    $("s7lock").style.opacity = clamp(prog(t, 28.55, 28.8));
+    $("s7lock").style.transform = `scale(${lerp(0.75, 1, p)})`;
+    type($("s7tag"), t, 29.15, Infinity, { stagger: 0.05, rise: 28 });
+    rise($("s7url"), t, 29.9, { dy: 24, scale: 0.9, back: true, dur: 0.7 });
+    show($("s7foot"), 0.7 * prog(t, 30.4, 30.9));
+  }
+}
+
+// ---------- playback ----------
+window.__render = render;
+window.__duration = DURATION;
+window.__ready = Promise.all([document.fonts.ready, ...[...document.images].map((i) => (i.complete ? 1 : new Promise((r) => (i.onload = i.onerror = r))))]);
+const q = new URLSearchParams(location.search);
+if (q.has("t")) render(Number(q.get("t")));
+else if (!q.has("render")) {
+  window.__ready.then(() => { const t0 = performance.now(); const loop = (n) => { render(((n - t0) / 1000) % DURATION); requestAnimationFrame(loop); }; requestAnimationFrame(loop); });
+}
+</script>
+</body>
+</html>

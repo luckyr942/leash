@@ -159,3 +159,4 @@ export const Lock = I(
     <path d="M8 11V8a4 4 0 0 1 8 0v3" />
   </>,
 );
+export const Menu = I(<path d="M4 7h16M4 12h16M4 17h16" />);

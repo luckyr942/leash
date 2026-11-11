@@ -15,8 +15,8 @@ export default defineConfig([
     },
   },
   {
-    // The logger is the one place allowed to write to the console.
-    files: ["lib/server/logger.ts"],
+    // The logger and command-line scripts may write to the console.
+    files: ["lib/server/logger.ts", "video/**/*.mjs", "scripts/**/*.mjs"],
     rules: { "no-console": "off" },
   },
 ]);
